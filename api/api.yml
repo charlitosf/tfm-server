@@ -1,0 +1,444 @@
+openapi: '3.0.2'
+info:
+  title: Integrally Secure Storage (ISS)
+  description: Implementation of the Integrally Secure Storage (ISS) protocol.
+  version: '1.0.0'
+  license:
+    name: GNU GPLv3
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  contact:
+    name: Carlos Ferrús Ferri
+    email: cmff1@alu.ua.es
+servers:
+  - url: https://localhost:8080/v1
+
+components:
+  schemas:
+    Credentials:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Password"
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    ErrorObject:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Failed"
+    Password:
+      type: object
+      properties:
+        password:
+          type: string
+          format: password
+          example: 1234abcd
+    PasswordList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Credentials"
+    PasswordExport:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/PasswordList"
+      example:
+        www.google.es:
+          - username: cmff1
+            password: 1234abcd
+          - username: cmff2
+            password: abcd1234
+        www.facebook.com:
+          - username: cmff1
+            password: 1234abcd
+    FileName:
+      type: string
+      example: supersecretfile.txt
+    FileNameObject:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/FileName"
+    FileContentObject:
+      type: object
+      properties:
+        content:
+          type: string
+          format: byte
+          example: U3dhZ2dlciByb2Nrcw==
+    File:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/FileNameObject"
+        - $ref: "#/components/schemas/FileContentObject"
+    FileNamesList:
+      type: array
+      items:
+        $ref: "#/components/schemas/FileNameObject"
+    Username:
+      type: string
+      example: cmff1
+
+      
+
+  responses:
+    IncorrectFormat:
+      description: Request improperly formatted
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: "#/components/schemas/ErrorObject"
+    Forbidden:
+      description: Forbidden operation. Authentication requested
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: "#/components/schemas/ErrorObject"
+    Unauthorized:
+      description: Authorization failed
+      content:
+        application/json:
+          schema:
+            type: object
+            $ref: "#/components/schemas/ErrorObject"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorObject"
+  parameters:
+    web:
+      name: web
+      in: path
+      required: true
+      description: Webpage associated with the password
+      schema:
+        type: string
+        example: www.google.es
+    username:
+      name: username
+      in: path
+      required: true
+      description: Username related to the password
+      schema:
+        $ref: "#/components/schemas/Username"
+  securitySchemes:
+    jwtBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Token'
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+  /auth/logout:
+    post:
+      operationId: logout
+      description: Log out - invalidate the given token.
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: OK
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /auth/signup:
+    post:
+      operationId: signup
+      description: Create a new user in the server
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+      security: []
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+  /users/{username}:
+    parameters:
+      - $ref: "#/components/parameters/username"
+    put:
+      operationId: modifyUser
+      description: Modify a certain user in the server (its password)
+      tags:
+        - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+      responses:
+        '200':
+          description: User modified successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteUser
+      description: Delete a certain user in the server, alongside all of its information
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User deleted successfully
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+  /passwords:
+    get:
+      operationId: getAllPasswords
+      description: Export all saved passwords
+      tags:
+        - Passwords
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordExport"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /passwords/{web}:
+    parameters:
+      - $ref: "#/components/parameters/web"
+    get:
+      operationId: getPasswords
+      description: Get all passwords from a certain webpage
+      tags:
+        - Passwords
+      responses:
+        '200':
+          description: Passwords associated to a certain webpage correctly retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PasswordList"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: createPassword
+      description: Create a new password
+      tags:
+        - Passwords
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+      responses:
+        '201':
+          description: Password created successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /passwords/{web}/{username}:
+    parameters:
+      - $ref: "#/components/parameters/web"
+      - $ref: "#/components/parameters/username"
+    get:
+      operationId: getPassword
+      description: Obtain a certain password
+      tags:
+        - Passwords
+      responses:
+        '200':
+          description: Password obtained successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credentials"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: modifyPassword
+      description: Modify a certain password
+      tags:
+        - Passwords
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Password"
+      responses:
+        '200':
+          description: Password modified successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deletePassword
+      description: Delete a certain password
+      tags:
+        - Passwords
+      responses:
+        '200':
+          description: Password deleted successfully
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+  /files:
+    get:
+      operationId: getFiles
+      description: Retrieve a list with the names of all stored files
+      tags:
+        - Files
+      responses:
+        '200':
+          description: File names and identifiers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileNamesList"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createFile
+      description: Create a new file
+      tags:
+        - Files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/File"
+      responses:
+        '201':
+          description: File created successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /files/{name}:
+    parameters:
+      - name: name
+        description: Name of the requested file
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/FileName"
+    get:
+      operationId: getFile
+      description: Retrieve a certain file
+      tags:
+        - Files
+      responses:
+        '200':
+          description: File retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: modifyFile
+      description: Replace a certain file
+      tags:
+        - Files
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FileContentObject"
+      responses:
+        '200':
+          description: File modified successfully
+        '400':
+          $ref: "#/components/responses/IncorrectFormat"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteFile
+      description: Remove a certain file
+      tags:
+        - Files
+      responses:
+        '200':
+          description: File deleted successfully
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+
+security:
+  - jwtBearer: []
