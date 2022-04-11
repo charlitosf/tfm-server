@@ -44,15 +44,15 @@ func main() {
 		{
 			// Get all passwords
 			passwords.GET("/", controllers.GetPasswords)
-			// Get all passwords of a website
+			// Get all passwords from a website
 			passwords.GET("/:website", controllers.GetPasswordsByWebsite)
 			// Create a password on a website
 			passwords.POST("/:website", controllers.CreatePassword)
-			// Get a password of a website of a user
+			// Get a password from a website of a user
 			passwords.GET("/:website/:username", controllers.GetPassword)
-			// Update a password of a website of a user
+			// Update a password from a website of a user
 			passwords.PUT("/:website/:username", controllers.UpdatePassword)
-			// Delete a password of a website of a user
+			// Delete a password from a website of a user
 			passwords.DELETE("/:website/:username", controllers.DeletePassword)
 		}
 
