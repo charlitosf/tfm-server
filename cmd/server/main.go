@@ -18,8 +18,8 @@ func main() {
 	{
 		// Login
 		auth.POST("/login", controllers.Login)
-		// Logout
-		auth.POST("/logout", controllers.Logout)
+		// Logout (must be authorized)
+		auth.POST("/logout", middleware.Authorized(), controllers.Logout)
 		// Signup
 		auth.POST("/signup", controllers.Signup)
 	}
