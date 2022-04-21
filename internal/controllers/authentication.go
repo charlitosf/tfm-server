@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"charlitosf/tfm-server/internal/services"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -38,7 +39,9 @@ func Logout(c *gin.Context) {
 
 // Signup handler
 func Signup(c *gin.Context) {
+	// Perform signup
+	err := services.Signup("admin", "admin")
 	c.JSON(200, gin.H{
-		"status": "ok",
+		"status": err.Error(),
 	})
 }
