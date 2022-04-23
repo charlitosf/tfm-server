@@ -1,6 +1,6 @@
 run: server.exe
-	.\server.exe
+	./server.exe
 
-server.exe: cmd/server/main.go pkg/*/*.go internal/*/*.go
+server.exe: cmd/server/main.go internal/*/*.go
 	clear
-	go build -o server.exe cmd\server\main.go
+	go build -o server.exe cmd/server/main.go

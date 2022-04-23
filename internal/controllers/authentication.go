@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"charlitosf/tfm-server/internal/services"
+	"charlitosf/tfm-server/pkg/httptypes"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -39,9 +40,18 @@ func Logout(c *gin.Context) {
 
 // Signup handler
 func Signup(c *gin.Context) {
-	// Perform signup
-	err := services.Signup("admin", "admin")
-	c.JSON(200, gin.H{
-		"status": err.Error(),
-	})
+	var req httptypes.SignupRequest
+	err := c.BindJSON(&req)
+	if err == nil { // Correct request
+		// Perform signup
+		err := services.Signup(req.Username, req.Password)
+		if err != nil { // Username already exists or other error
+			c.JSON(400, httptypes.SignupResponse{Error: &httptypes.Error{Message: err.Error()}})
+		} else {
+			c.JSON(200, httptypes.SignupResponse{})
+		}
+	} else {
+		// If the request is incorrect, abort with an error
+		c.AbortWithError(400, err)
+	}
 }

@@ -9,6 +9,12 @@ import (
 	"github.com/tsuna/gohbase/hrpc"
 )
 
+const USERS_TABLE string = "users"
+const USERS_DATA_COLFAM string = "data"
+const USERS_PASSWORD_COL string = "password"
+const USERS_PUBKEY_COL string = "pubkey"
+const USERS_PRIVKEY_COL string = "privkey"
+
 // HBase client variable
 var HBaseClient gohbase.Client
 var host string
@@ -17,20 +23,49 @@ var host string
 func init() {
 	host = os.Getenv("HBASE_HOST")
 	if host == "" {
-		host = "192.168.22.132"
+		host = "localhost"
 	}
 	HBaseClient = gohbase.NewClient(host)
 }
 
-// Create user in the data base
+// Create user in the database
 // Given username and password
 func CreateUser(username, password string) error {
-	// return errors.New(host)
-	value := map[string]map[string][]byte{"data": {"password": []byte(password)}}
-	putReq, err := hrpc.NewPutStr(context.Background(), "users", username, value)
+	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {USERS_PASSWORD_COL: []byte(password)}}
+	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, username, value)
 	if err != nil {
 		return err
 	}
-	rsp, err := HBaseClient.Put(putReq)
-	return errors.New(rsp.String())
+	_, err = HBaseClient.Put(putReq)
+	return err
+}
+
+// Get a user from the database
+// Given username
+// Return a user struct
+func GetUser(username string) (*User, error) {
+	getReq, err := hrpc.NewGetStr(context.Background(), USERS_TABLE, username)
+	if err != nil {
+		return nil, err
+	}
+	result, err := HBaseClient.Get(getReq)
+	if err != nil {
+		return nil, err
+	}
+	if result.Cells == nil {
+		return nil, errors.New("nil cells")
+	}
+	if len(result.Cells) == 0 {
+		return nil, errors.New("user not found")
+	}
+	var user User
+	user.Username = username
+	for _, cell := range result.Cells {
+		if string(cell.Family) == USERS_DATA_COLFAM && string(cell.Qualifier) == USERS_PUBKEY_COL { // pubkey
+			user.PubKey = string(cell.Value)
+		} else if string(cell.Family) == USERS_DATA_COLFAM && string(cell.Qualifier) == USERS_PRIVKEY_COL { // privkey
+			user.PrivKey = string(cell.Value)
+		}
+	}
+	return &user, nil
 }

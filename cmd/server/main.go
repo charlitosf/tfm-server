@@ -5,17 +5,9 @@ import (
 	"charlitosf/tfm-server/internal/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
-	logrus.SetLevel(logrus.DebugLevel)
-	// Load environment variables
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
 	// Main router object
 	r := gin.Default()
 
