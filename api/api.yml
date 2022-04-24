@@ -40,6 +40,33 @@ components:
           type: string
           format: password
           example: 1234abcd
+    UserMetadata:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Carlos Ferrús Ferri"
+        email:
+          type: string
+          example: "email@example.com"
+        publicKey:
+          type: string
+          format: base64
+          description: "Public key of the user"
+        privateKey:
+          type: string
+          format: base64
+          description: "Ciphered private key"
+    LoginResponse:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Token"
+        - $ref: "#/components/schemas/UserMetadata"
+    User:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Credentials"
+        - $ref: "#/components/schemas/UserMetadata"
     PasswordList:
       type: array
       items:
@@ -157,7 +184,7 @@ paths:
             application/json:
               schema:
                 type: object
-                $ref: '#/components/schemas/Token'
+                $ref: '#/components/schemas/LoginResponse'
         '400':
           $ref: "#/components/responses/IncorrectFormat"
   /auth/logout:
@@ -183,7 +210,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Credentials"
+              $ref: "#/components/schemas/User"
       security: []
       responses:
         '201':
