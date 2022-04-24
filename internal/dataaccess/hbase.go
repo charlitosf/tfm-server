@@ -11,9 +11,12 @@ import (
 
 const USERS_TABLE string = "users"
 const USERS_DATA_COLFAM string = "data"
+
 const USERS_PASSWORD_COL string = "password"
 const USERS_PUBKEY_COL string = "pubkey"
 const USERS_PRIVKEY_COL string = "privkey"
+const USERS_NAME_COL string = "name"
+const USERS_EMAIL_COL string = "email"
 
 // HBase client variable
 var HBaseClient gohbase.Client
@@ -30,8 +33,14 @@ func init() {
 
 // Create user in the database
 // Given username and password
-func CreateUser(username, password string) error {
-	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {USERS_PASSWORD_COL: []byte(password)}}
+func CreateUser(username, password, name, email, pubKey, privKey string) error {
+	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {
+		USERS_PASSWORD_COL: []byte(password),
+		USERS_PUBKEY_COL:   []byte(pubKey),
+		USERS_PRIVKEY_COL:  []byte(privKey),
+		USERS_NAME_COL:     []byte(name),
+		USERS_EMAIL_COL:    []byte(email),
+	}}
 	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, username, value)
 	if err != nil {
 		return err

@@ -5,22 +5,36 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// Login request type struct
-type LoginRequest struct {
+// Credentials type struct
+type Credentials struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
+// Login request type struct
+type LoginRequest struct {
+	Credentials
+}
+
+// User metadata type struct
+type UserMetadata struct {
+	Name    string `json:"name" binding:"required"`
+	Email   string `json:"email" binding:"required"`
+	PubKey  string `json:"publicKey" binding:"required"`
+	PrivKey string `json:"privateKey" binding:"required"`
+}
+
 // Login response type struct
 type LoginResponse struct {
+	UserMetadata
 	Token string `json:"token"`
 	Error *Error `json:"error,omitempty"`
 }
 
 // Signup request type struct
 type SignupRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Credentials
+	UserMetadata
 }
 
 // Signup response type struct
