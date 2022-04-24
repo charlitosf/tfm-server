@@ -1,6 +1,7 @@
 package services
 
 import (
+	"charlitosf/tfm-server/internal/crypt"
 	"charlitosf/tfm-server/internal/dataaccess"
 	"errors"
 )
@@ -13,5 +14,11 @@ func Signup(username, password, name, email, pubKey, privKey string) error {
 	if err == nil {
 		return errors.New("user already exists")
 	}
-	return dataaccess.CreateUser(username, password, name, email, pubKey, privKey)
+
+	// Hash the password using argon2
+	salt := crypt.GenerateSalt()
+	hashedPassword := crypt.PBKDF([]byte(password), salt)
+
+	// Create the user
+	return dataaccess.CreateUser(username, name, email, pubKey, privKey, hashedPassword, salt)
 }

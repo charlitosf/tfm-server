@@ -13,6 +13,7 @@ const USERS_TABLE string = "users"
 const USERS_DATA_COLFAM string = "data"
 
 const USERS_PASSWORD_COL string = "password"
+const USERS_SALT_COL string = "salt"
 const USERS_PUBKEY_COL string = "pubkey"
 const USERS_PRIVKEY_COL string = "privkey"
 const USERS_NAME_COL string = "name"
@@ -33,9 +34,10 @@ func init() {
 
 // Create user in the database
 // Given username and password
-func CreateUser(username, password, name, email, pubKey, privKey string) error {
+func CreateUser(username, name, email, pubKey, privKey string, hashedPassword, salt []byte) error {
 	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {
-		USERS_PASSWORD_COL: []byte(password),
+		USERS_PASSWORD_COL: hashedPassword,
+		USERS_SALT_COL:     salt,
 		USERS_PUBKEY_COL:   []byte(pubKey),
 		USERS_PRIVKEY_COL:  []byte(privKey),
 		USERS_NAME_COL:     []byte(name),
@@ -70,10 +72,17 @@ func GetUser(username string) (*User, error) {
 	var user User
 	user.Username = username
 	for _, cell := range result.Cells {
-		if string(cell.Family) == USERS_DATA_COLFAM && string(cell.Qualifier) == USERS_PUBKEY_COL { // pubkey
-			user.PubKey = string(cell.Value)
-		} else if string(cell.Family) == USERS_DATA_COLFAM && string(cell.Qualifier) == USERS_PRIVKEY_COL { // privkey
-			user.PrivKey = string(cell.Value)
+		if string(cell.Family) == USERS_DATA_COLFAM {
+			switch string(cell.Qualifier) {
+			case USERS_PUBKEY_COL:
+				user.PubKey = string(cell.Value)
+			case USERS_PRIVKEY_COL:
+				user.PrivKey = string(cell.Value)
+			case USERS_NAME_COL:
+				user.Name = string(cell.Value)
+			case USERS_EMAIL_COL:
+				user.Email = string(cell.Value)
+			}
 		}
 	}
 	return &user, nil
