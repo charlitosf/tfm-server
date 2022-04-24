@@ -26,9 +26,9 @@ type UserMetadata struct {
 
 // Login response type struct
 type LoginResponse struct {
-	UserMetadata
-	Token string `json:"token"`
-	Error *Error `json:"error,omitempty"`
+	User  *UserMetadata `json:"user,omitempty"`
+	Token string        `json:"token,omitempty"`
+	Error *Error        `json:"error,omitempty"`
 }
 
 // Signup request type struct

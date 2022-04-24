@@ -87,3 +87,34 @@ func GetUser(username string) (*User, error) {
 	}
 	return &user, nil
 }
+
+// Get user's password and salt
+// Given username
+// Return a password and salt byte slices
+func GetUserPasswordAndSalt(username string) ([]byte, []byte, error) {
+	getReq, err := hrpc.NewGetStr(context.Background(), USERS_TABLE, username)
+	if err != nil {
+		return nil, nil, err
+	}
+	result, err := HBaseClient.Get(getReq)
+	if err != nil {
+		return nil, nil, err
+	}
+	if result.Cells == nil {
+		return nil, nil, errors.New("nil cells")
+	}
+	if len(result.Cells) == 0 {
+		return nil, nil, errors.New("user not found")
+	}
+	var password, salt []byte
+	for _, cell := range result.Cells {
+		if string(cell.Family) == USERS_DATA_COLFAM {
+			if string(cell.Qualifier) == USERS_PASSWORD_COL {
+				password = cell.Value
+			} else if string(cell.Qualifier) == USERS_SALT_COL {
+				salt = cell.Value
+			}
+		}
+	}
+	return password, salt, nil
+}

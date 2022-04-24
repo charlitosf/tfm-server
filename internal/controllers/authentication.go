@@ -3,7 +3,6 @@ package controllers
 import (
 	"charlitosf/tfm-server/internal/services"
 	"charlitosf/tfm-server/pkg/httptypes"
-	"errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,21 +10,24 @@ import (
 // Login handler
 func Login(c *gin.Context) {
 	// Get the user credentials
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-
-	// Check credentials
-	if username == "admin" && password == "admin" {
-		// Create token
-		//token := CreateToken(username)
-		token := 0
-		// Set the token in the response
-		c.JSON(200, gin.H{
-			"token": token,
-		})
-	} else {
-		// If the credentials are wrong, abort with an error
-		c.AbortWithError(401, errors.New("wrong credentials"))
+	var req httptypes.LoginRequest
+	err := c.BindJSON(&req)
+	if err == nil { // Correct request
+		// Get the token and the user
+		token, user, err := services.Login(req.Username, req.Password)
+		if err != nil {
+			c.JSON(400, httptypes.LoginResponse{Error: &httptypes.Error{Message: err.Error()}})
+		} else {
+			// Return the token and the user
+			c.JSON(200, httptypes.LoginResponse{Token: *token, User: &httptypes.UserMetadata{
+				Name:    user.Name,
+				Email:   user.Email,
+				PubKey:  user.PubKey,
+				PrivKey: user.PrivKey,
+			}})
+		}
+	} else { // Wrong request
+		c.JSON(400, httptypes.LoginResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}
 }
 
