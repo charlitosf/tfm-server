@@ -41,3 +41,8 @@ type SignupRequest struct {
 type SignupResponse struct {
 	Error *Error `json:"error,omitempty"`
 }
+
+// Logout response type struct
+type LogoutResponse struct {
+	Error *Error `json:"error,omitempty"`
+}

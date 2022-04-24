@@ -33,11 +33,15 @@ func Login(c *gin.Context) {
 
 // Logout handler
 func Logout(c *gin.Context) {
-	// Delete the token from the database
-	// DeleteToken(c.GetHeader("Authorization"))
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get the token
+	token := c.MustGet("token").(string)
+	// Perform logout
+	err := services.Logout(token)
+	if err != nil { // Logout error
+		c.JSON(400, httptypes.LogoutResponse{Error: &httptypes.Error{Message: err.Error()}})
+	} else { // Logout successful
+		c.JSON(200, httptypes.LogoutResponse{})
+	}
 }
 
 // Signup handler

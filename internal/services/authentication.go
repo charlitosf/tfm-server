@@ -55,3 +55,9 @@ func Login(username, password string) (*string, *dataaccess.User, error) {
 	// Return the token and the user
 	return &token, user, nil
 }
+
+// Logout
+// Given a token, invalidates it
+func Logout(token string) error {
+	return jwt.RevokeToken(token)
+}
