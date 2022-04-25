@@ -14,7 +14,7 @@ func GetPasswords(c *gin.Context) {
 	// Get passwords
 	passwords, err := services.GetAllPasswords(user)
 	if err != nil {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
 		c.JSON(200, passwords)
 	}
@@ -29,7 +29,7 @@ func GetPasswordsByWebsite(c *gin.Context) {
 	// Get passwords
 	passwords, err := services.GetPasswords(user, website)
 	if err != nil {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
 		c.JSON(200, passwords)
 	}
@@ -46,12 +46,12 @@ func CreatePassword(c *gin.Context) {
 		// Create password
 		err = services.CreatePassword(user, website, request.Username, request.Password)
 		if err != nil {
-			c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(201, httptypes.GenericEmptyResponse{})
+			c.JSON(201, httptypes.GenericResponse{})
 		}
 	} else {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}
 }
 
@@ -66,7 +66,7 @@ func GetPassword(c *gin.Context) {
 	// Get password
 	password, err := services.GetPassword(user, website, username)
 	if err != nil {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
 		c.JSON(200, httptypes.GetPasswordResponse{Password: password})
 	}
@@ -87,12 +87,12 @@ func UpdatePassword(c *gin.Context) {
 		// Update password
 		err = services.UpdatePassword(user, website, username, request.Password)
 		if err != nil {
-			c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(200, httptypes.GenericEmptyResponse{})
+			c.JSON(200, httptypes.GenericResponse{})
 		}
 	} else {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}
 }
 
@@ -107,8 +107,8 @@ func DeletePassword(c *gin.Context) {
 	// Delete password
 	err := services.DeletePassword(user, website, username)
 	if err != nil {
-		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
-		c.JSON(200, httptypes.GenericEmptyResponse{})
+		c.JSON(200, httptypes.GenericResponse{})
 	}
 }

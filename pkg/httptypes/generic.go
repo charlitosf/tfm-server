@@ -5,11 +5,7 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// Generic error response type struct
-type GenericErrorResponse struct {
-	Error *Error `json:"error"`
-}
-
-// Generic empty response type struct
-type GenericEmptyResponse struct {
+// Generic response type struct
+type GenericResponse struct {
+	Error *Error `json:"error,omitempty"`
 }

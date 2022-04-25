@@ -38,9 +38,9 @@ func Logout(c *gin.Context) {
 	// Perform logout
 	err := services.Logout(token)
 	if err != nil { // Logout error
-		c.JSON(400, httptypes.LogoutResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else { // Logout successful
-		c.JSON(200, httptypes.LogoutResponse{})
+		c.JSON(200, httptypes.GenericResponse{})
 	}
 }
 
@@ -52,9 +52,9 @@ func Signup(c *gin.Context) {
 		// Perform signup
 		err := services.Signup(req.Username, req.Password, req.Name, req.Email, req.PubKey, req.PrivKey)
 		if err != nil { // Username already exists or other error
-			c.JSON(400, httptypes.SignupResponse{Error: &httptypes.Error{Message: err.Error()}})
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(201, httptypes.SignupResponse{})
+			c.JSON(201, httptypes.GenericResponse{})
 		}
 	} else {
 		// If the request is incorrect, abort with an error
