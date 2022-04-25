@@ -1,6 +1,7 @@
 package dataaccess
 
 import (
+	"charlitosf/tfm-server/pkg/stringutilities"
 	"context"
 	"encoding/json"
 	"errors"
@@ -170,6 +171,8 @@ func GetPassword(user, website, username string) (string, error) {
 // Given propietary user and website
 // Return a map of usernames and passwords
 func GetPasswords(user, website string) (map[string]string, error) {
+	// Reverse website
+	website = stringutilities.ReverseSplitJoin(website)
 	// Filter by website
 	family := map[string][]string{PASSWORDS_DATA_COLFAM: {website}}
 	getReq, err := hrpc.NewGetStr(context.Background(), PASSWORDS_TABLE, user, hrpc.Families(family))
@@ -203,6 +206,10 @@ func CreatePassword(propietaryUser, website, username, password string) error {
 	if err != nil {
 		return err
 	}
+
+	// Reverse website
+	website = stringutilities.ReverseSplitJoin(website)
+
 	passwords[username] = password
 	value, err := json.Marshal(passwords)
 	if err != nil {
