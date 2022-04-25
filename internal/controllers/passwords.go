@@ -14,7 +14,7 @@ func GetPasswords(c *gin.Context) {
 	// Get passwords
 	passwords, err := services.GetAllPasswords(user)
 	if err != nil {
-		c.JSON(400, httptypes.GetPasswordsResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
 		c.JSON(200, passwords)
 	}
@@ -29,7 +29,7 @@ func GetPasswordsByWebsite(c *gin.Context) {
 	// Get passwords
 	passwords, err := services.GetPasswords(user, website)
 	if err != nil {
-		c.JSON(400, httptypes.GetPasswordsResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
 		c.JSON(200, passwords)
 	}
@@ -57,9 +57,19 @@ func CreatePassword(c *gin.Context) {
 
 // Get a password handler
 func GetPassword(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user
+	user := c.MustGet("username").(string)
+	// Get website
+	website := c.Param("website")
+	// Get username
+	username := c.Param("username")
+	// Get password
+	password, err := services.GetPassword(user, website, username)
+	if err != nil {
+		c.JSON(400, httptypes.GetPasswordResponse{Error: &httptypes.Error{Message: err.Error()}})
+	} else {
+		c.JSON(200, httptypes.GetPasswordResponse{Password: password})
+	}
 }
 
 // Update a password handler

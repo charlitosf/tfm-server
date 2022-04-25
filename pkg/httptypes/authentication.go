@@ -1,10 +1,5 @@
 package httptypes
 
-// Generic error type struct
-type Error struct {
-	Message string `json:"message"`
-}
-
 // Credentials type struct
 type Credentials struct {
 	Username string `json:"username" binding:"required"`

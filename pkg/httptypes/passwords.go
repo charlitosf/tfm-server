@@ -11,7 +11,8 @@ type CreatePasswordResponse struct {
 	Error *Error `json:"error,omitempty"`
 }
 
-// Get passwords response type struct
-type GetPasswordsResponse struct {
-	Error *Error `json:"error,omitempty"`
+// Get password response type struct
+type GetPasswordResponse struct {
+	Error    *Error `json:"error,omitempty"`
+	Password string `json:"password,omitempty"`
 }

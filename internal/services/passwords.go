@@ -19,6 +19,13 @@ func CreatePassword(proprietaryUser, website, username, password string) error {
 	}
 }
 
+// Get a password from a website
+// Given a proprietary user, a website and a username
+// Return a password
+func GetPassword(proprietaryUser, website, username string) (string, error) {
+	return dataaccess.GetPassword(proprietaryUser, website, username)
+}
+
 // Get passwords from a website
 // Given a proprietary user and a website
 // Return a map of usernames and passwords
