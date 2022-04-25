@@ -16,7 +16,7 @@ func UpdateUser(c *gin.Context) {
 
 // Delete user handler
 func DeleteUser(c *gin.Context) {
-	err := services.DeleteUser(c.Param("username"))
+	err := services.DeleteUser(c.Param("username"), c.MustGet("token").(string))
 	if err != nil {
 		c.JSON(400, httptypes.DeleteUserResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
