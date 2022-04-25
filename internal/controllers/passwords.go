@@ -81,7 +81,17 @@ func UpdatePassword(c *gin.Context) {
 
 // Delete a password handler
 func DeletePassword(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user
+	user := c.MustGet("username").(string)
+	// Get website
+	website := c.Param("website")
+	// Get username
+	username := c.Param("username")
+	// Delete password
+	err := services.DeletePassword(user, website, username)
+	if err != nil {
+		c.JSON(400, httptypes.GenericErrorResponse{Error: &httptypes.Error{Message: err.Error()}})
+	} else {
+		c.JSON(200, httptypes.GenericEmptyResponse{})
+	}
 }

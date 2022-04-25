@@ -39,3 +39,16 @@ func GetPasswords(proprietaryUser, website string) (map[string]string, error) {
 func GetAllPasswords(proprietaryUser string) (map[string]map[string]string, error) {
 	return dataaccess.GetAllPasswords(proprietaryUser)
 }
+
+// Delete a password
+// Given a proprietary user, a website and a username
+// Return error
+func DeletePassword(proprietaryUser, website, username string) error {
+	// Check if password exists
+	_, err := dataaccess.GetPassword(proprietaryUser, website, username)
+	if err != nil {
+		return errors.New("password does not exist")
+	} else {
+		return dataaccess.DeletePassword(proprietaryUser, website, username)
+	}
+}

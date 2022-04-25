@@ -9,3 +9,7 @@ type Error struct {
 type GenericErrorResponse struct {
 	Error *Error `json:"error"`
 }
+
+// Generic empty response type struct
+type GenericEmptyResponse struct {
+}
