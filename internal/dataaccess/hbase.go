@@ -92,7 +92,9 @@ func GetUser(username string) (*User, error) {
 // Given username
 // Return a password and salt byte slices
 func GetUserPasswordAndSalt(username string) ([]byte, []byte, error) {
-	getReq, err := hrpc.NewGetStr(context.Background(), USERS_TABLE, username)
+	// Filter by password and salt
+	family := map[string][]string{USERS_DATA_COLFAM: {USERS_PASSWORD_COL, USERS_SALT_COL}}
+	getReq, err := hrpc.NewGetStr(context.Background(), USERS_TABLE, username, hrpc.Families(family))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -105,12 +107,10 @@ func GetUserPasswordAndSalt(username string) ([]byte, []byte, error) {
 	}
 	var password, salt []byte
 	for _, cell := range result.Cells {
-		if string(cell.Family) == USERS_DATA_COLFAM {
-			if string(cell.Qualifier) == USERS_PASSWORD_COL {
-				password = cell.Value
-			} else if string(cell.Qualifier) == USERS_SALT_COL {
-				salt = cell.Value
-			}
+		if string(cell.Qualifier) == USERS_PASSWORD_COL {
+			password = cell.Value
+		} else if string(cell.Qualifier) == USERS_SALT_COL {
+			salt = cell.Value
 		}
 	}
 	return password, salt, nil
