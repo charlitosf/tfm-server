@@ -181,9 +181,9 @@ func GetPasswords(user, website string) (map[string]string, error) {
 		return nil, err
 	}
 	if result.Cells == nil || len(result.Cells) == 0 {
-		return nil, errors.New("no passwords found")
+		return make(map[string]string), nil
 	}
-	var passwords map[string]string
+	var passwords map[string]string = make(map[string]string)
 	for _, cell := range result.Cells {
 		if string(cell.Qualifier) == website {
 			err = json.Unmarshal(cell.Value, &passwords)
@@ -198,8 +198,8 @@ func GetPasswords(user, website string) (map[string]string, error) {
 // Create password in the database
 // Given propietary user, website, username and password
 // Return error
-func CreatePassword(user, website, username, password string) error {
-	passwords, err := GetPasswords(user, website)
+func CreatePassword(propietaryUser, website, username, password string) error {
+	passwords, err := GetPasswords(propietaryUser, website)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func CreatePassword(user, website, username, password string) error {
 	if err != nil {
 		return err
 	}
-	putReq, err := hrpc.NewPutStr(context.Background(), PASSWORDS_TABLE, user,
+	putReq, err := hrpc.NewPutStr(context.Background(), PASSWORDS_TABLE, propietaryUser,
 		map[string]map[string][]byte{PASSWORDS_DATA_COLFAM: {
 			website: value,
 		}})
