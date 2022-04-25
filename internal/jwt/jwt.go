@@ -63,6 +63,10 @@ func GenerateJWT(username string) (string, error) {
 // If there is a parse error or the token is not valid, a suitable error is returned.
 func VerifyJWT(tokenString string) (username string, err error) {
 	token, err := jwt.ParseWithClaims(tokenString, &JWTCustomClaims{}, parsingFunc)
+	if err != nil {
+		return "", err
+	}
+
 	if token.Valid {
 		if claims, ok := token.Claims.(*JWTCustomClaims); ok {
 			username = claims.Username
