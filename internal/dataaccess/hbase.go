@@ -34,16 +34,16 @@ func init() {
 
 // Create user in the database
 // Given username and password
-func CreateUser(username, name, email, pubKey, privKey string, hashedPassword, salt []byte) error {
+func CreateUser(user User, hashedPassword, salt []byte) error {
 	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {
 		USERS_PASSWORD_COL: hashedPassword,
 		USERS_SALT_COL:     salt,
-		USERS_PUBKEY_COL:   []byte(pubKey),
-		USERS_PRIVKEY_COL:  []byte(privKey),
-		USERS_NAME_COL:     []byte(name),
-		USERS_EMAIL_COL:    []byte(email),
+		USERS_PUBKEY_COL:   []byte(user.PubKey),
+		USERS_PRIVKEY_COL:  []byte(user.PrivKey),
+		USERS_NAME_COL:     []byte(user.Name),
+		USERS_EMAIL_COL:    []byte(user.Email),
 	}}
-	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, username, value)
+	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, user.Username, value)
 	if err != nil {
 		return err
 	}

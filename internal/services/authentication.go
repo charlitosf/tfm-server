@@ -21,8 +21,16 @@ func Signup(username, password, name, email, pubKey, privKey string) error {
 	salt := crypt.GenerateSalt()
 	hashedPassword := crypt.PBKDF([]byte(password), salt)
 
+	user := dataaccess.User{
+		Username: username,
+		PubKey:   pubKey,
+		PrivKey:  privKey,
+		Name:     name,
+		Email:    email,
+	}
+
 	// Create the user
-	return dataaccess.CreateUser(username, name, email, pubKey, privKey, hashedPassword, salt)
+	return dataaccess.CreateUser(user, hashedPassword, salt)
 }
 
 // Login
