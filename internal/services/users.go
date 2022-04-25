@@ -2,7 +2,7 @@ package services
 
 import "charlitosf/tfm-server/internal/dataaccess"
 
-// Remove user from the database using hte dataaccess functions
+// Remove user from the database using the dataaccess functions
 // Given username
 // Return an error
 func DeleteUser(username, token string) error {

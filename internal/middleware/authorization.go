@@ -38,3 +38,19 @@ func Authorized() gin.HandlerFunc {
 		}
 	}
 }
+
+// Token username and path username must match
+func TokenUsernameMustMatchPathUsername() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the username from the context
+		username := c.MustGet("username").(string)
+
+		// Get the path username from the path
+		pathUsername := c.Param("username")
+
+		// If the username from the path does not match the username from the context, abort with error
+		if username != pathUsername {
+			c.AbortWithError(401, errors.New("token username does not match path username"))
+		}
+	}
+}

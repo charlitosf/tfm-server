@@ -28,7 +28,7 @@ func main() {
 	authorized := r.Group("/")
 
 	// Middleware
-	authorized.Use(middleware.Authorized())
+	authorized.Use(middleware.Authorized(), middleware.TokenUsernameMustMatchPathUsername())
 	{
 		// Users group
 		users := authorized.Group("/users")
