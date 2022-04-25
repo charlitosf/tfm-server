@@ -28,10 +28,10 @@ func main() {
 	authorized := r.Group("/")
 
 	// Middleware
-	authorized.Use(middleware.Authorized(), middleware.TokenUsernameMustMatchPathUsername())
+	authorized.Use(middleware.Authorized())
 	{
 		// Users group
-		users := authorized.Group("/users")
+		users := authorized.Group("/users", middleware.TokenUsernameMustMatchPathUsername())
 		{
 			// Update user ('s password)
 			users.PUT("/:username", controllers.UpdateUser)
