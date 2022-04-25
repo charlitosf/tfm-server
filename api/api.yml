@@ -143,8 +143,8 @@ components:
           schema:
             $ref: "#/components/schemas/ErrorObject"
   parameters:
-    web:
-      name: web
+    website:
+      name: website
       in: path
       required: true
       description: Webpage associated with the password
@@ -272,9 +272,9 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '403':
           $ref: "#/components/responses/Forbidden"
-  /passwords/{web}:
+  /passwords/{website}:
     parameters:
-      - $ref: "#/components/parameters/web"
+      - $ref: "#/components/parameters/website"
     get:
       operationId: getPasswords
       description: Get all passwords from a certain webpage
@@ -312,9 +312,9 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         '403':
           $ref: "#/components/responses/Forbidden"
-  /passwords/{web}/{username}:
+  /passwords/{website}/{username}:
     parameters:
-      - $ref: "#/components/parameters/web"
+      - $ref: "#/components/parameters/website"
       - $ref: "#/components/parameters/username"
     get:
       operationId: getPassword
