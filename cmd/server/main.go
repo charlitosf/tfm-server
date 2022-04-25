@@ -34,9 +34,9 @@ func main() {
 		users := authorized.Group("/users")
 		{
 			// Update user ('s password)
-			users.PUT("/:id", controllers.UpdateUser)
+			users.PUT("/:username", controllers.UpdateUser)
 			// Delete user
-			users.DELETE("/:id", controllers.DeleteUser)
+			users.DELETE("/:username", controllers.DeleteUser)
 		}
 
 		// Passwords group

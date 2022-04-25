@@ -46,3 +46,8 @@ type SignupResponse struct {
 type LogoutResponse struct {
 	Error *Error `json:"error,omitempty"`
 }
+
+// Delete user response type struct
+type DeleteUserResponse struct {
+	Error *Error `json:"error,omitempty"`
+}

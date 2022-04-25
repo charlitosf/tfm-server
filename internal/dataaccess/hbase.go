@@ -100,11 +100,8 @@ func GetUserPasswordAndSalt(username string) ([]byte, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	if result.Cells == nil {
-		return nil, nil, errors.New("nil cells")
-	}
-	if len(result.Cells) == 0 {
-		return nil, nil, errors.New("user not found")
+	if result.Cells == nil || len(result.Cells) == 0 {
+		return nil, nil, errors.New("wrong credentials")
 	}
 	var password, salt []byte
 	for _, cell := range result.Cells {
@@ -117,4 +114,16 @@ func GetUserPasswordAndSalt(username string) ([]byte, []byte, error) {
 		}
 	}
 	return password, salt, nil
+}
+
+// Delete user from database
+// Given username
+// Return error
+func DeleteUser(username string) error {
+	delReq, err := hrpc.NewDelStr(context.Background(), USERS_TABLE, username, nil)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Delete(delReq)
+	return err
 }

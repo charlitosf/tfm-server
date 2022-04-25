@@ -37,7 +37,7 @@ func Login(username, password string) (*string, *dataaccess.User, error) {
 	hashedPassword := crypt.PBKDF([]byte(password), salt)
 	// Check if passwords are equal
 	if !bytes.Equal(hashedPassword, pass) {
-		return nil, nil, errors.New("wrong password")
+		return nil, nil, errors.New("wrong credentials")
 	}
 
 	// Get the user
