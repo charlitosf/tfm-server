@@ -326,7 +326,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Credentials"
+                $ref: "#/components/schemas/Password"
         '401':
           $ref: "#/components/responses/Unauthorized"
         '403':
