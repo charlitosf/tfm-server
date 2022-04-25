@@ -18,3 +18,10 @@ func CreatePassword(proprietaryUser, website, username, password string) error {
 		return errors.New("password already exists")
 	}
 }
+
+// Get passwords from a website
+// Given a proprietary user and a website
+// Return a map of usernames and passwords
+func GetPasswords(proprietaryUser, website string) (map[string]string, error) {
+	return dataaccess.GetPasswords(proprietaryUser, website)
+}

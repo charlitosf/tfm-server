@@ -16,9 +16,17 @@ func GetPasswords(c *gin.Context) {
 
 // Get all passwords from website handler
 func GetPasswordsByWebsite(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get website
+	website := c.Param("website")
+	// Get user
+	user := c.MustGet("username").(string)
+	// Get passwords
+	passwords, err := services.GetPasswords(user, website)
+	if err != nil {
+		c.JSON(400, httptypes.GetPasswordsResponse{Error: &httptypes.Error{Message: err.Error()}})
+	} else {
+		c.JSON(200, passwords)
+	}
 }
 
 // Create a password on a website handler

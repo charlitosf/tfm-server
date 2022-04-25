@@ -10,3 +10,8 @@ type CreatePasswordRequest struct {
 type CreatePasswordResponse struct {
 	Error *Error `json:"error,omitempty"`
 }
+
+// Get passwords response type struct
+type GetPasswordsResponse struct {
+	Error *Error `json:"error,omitempty"`
+}
