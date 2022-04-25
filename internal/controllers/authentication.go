@@ -54,7 +54,7 @@ func Signup(c *gin.Context) {
 		if err != nil { // Username already exists or other error
 			c.JSON(400, httptypes.SignupResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(200, httptypes.SignupResponse{})
+			c.JSON(201, httptypes.SignupResponse{})
 		}
 	} else {
 		// If the request is incorrect, abort with an error

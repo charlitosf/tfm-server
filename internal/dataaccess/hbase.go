@@ -2,6 +2,7 @@ package dataaccess
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
 
@@ -18,6 +19,9 @@ const USERS_PUBKEY_COL string = "pubkey"
 const USERS_PRIVKEY_COL string = "privkey"
 const USERS_NAME_COL string = "name"
 const USERS_EMAIL_COL string = "email"
+
+const PASSWORDS_TABLE string = "passwords"
+const PASSWORDS_DATA_COLFAM string = "data"
 
 // HBase client variable
 var HBaseClient gohbase.Client
@@ -137,6 +141,77 @@ func UpdateUserPassword(username string, hashedPassword, salt []byte) error {
 		USERS_SALT_COL:     salt,
 	}}
 	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, username, value)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Put(putReq)
+	return err
+}
+
+// ---- PASSWORDS ----
+
+// Get a password related to a username from a website from the database
+// Given proprietary user, website and username
+// Return a password string
+func GetPassword(user, website, username string) (string, error) {
+	passwords, err := GetPasswords(user, website)
+	if err != nil {
+		return "", err
+	}
+	for uname, password := range passwords {
+		if uname == username {
+			return password, nil
+		}
+	}
+	return "", errors.New("password not found")
+}
+
+// Get passwords from website from database
+// Given propietary user and website
+// Return a map of usernames and passwords
+func GetPasswords(user, website string) (map[string]string, error) {
+	// Filter by website
+	family := map[string][]string{PASSWORDS_DATA_COLFAM: {website}}
+	getReq, err := hrpc.NewGetStr(context.Background(), PASSWORDS_TABLE, user, hrpc.Families(family))
+	if err != nil {
+		return nil, err
+	}
+	result, err := HBaseClient.Get(getReq)
+	if err != nil {
+		return nil, err
+	}
+	if result.Cells == nil || len(result.Cells) == 0 {
+		return nil, errors.New("no passwords found")
+	}
+	var passwords map[string]string
+	for _, cell := range result.Cells {
+		if string(cell.Qualifier) == website {
+			err = json.Unmarshal(cell.Value, &passwords)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return passwords, nil
+}
+
+// Create password in the database
+// Given propietary user, website, username and password
+// Return error
+func CreatePassword(user, website, username, password string) error {
+	passwords, err := GetPasswords(user, website)
+	if err != nil {
+		return err
+	}
+	passwords[username] = password
+	value, err := json.Marshal(passwords)
+	if err != nil {
+		return err
+	}
+	putReq, err := hrpc.NewPutStr(context.Background(), PASSWORDS_TABLE, user,
+		map[string]map[string][]byte{PASSWORDS_DATA_COLFAM: {
+			website: value,
+		}})
 	if err != nil {
 		return err
 	}
