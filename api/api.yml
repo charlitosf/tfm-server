@@ -68,22 +68,21 @@ components:
         - $ref: "#/components/schemas/Credentials"
         - $ref: "#/components/schemas/UserMetadata"
     PasswordList:
-      type: array
-      items:
-        $ref: "#/components/schemas/Credentials"
+      type: object
+      properties:
+        passwords:
+          type: object
+      example:
+        cmff1: 1234abcd
+        cmff2: abcd1234
     PasswordExport:
       type: object
-      additionalProperties:
-        $ref: "#/components/schemas/PasswordList"
       example:
         www.google.es:
-          - username: cmff1
-            password: 1234abcd
-          - username: cmff2
-            password: abcd1234
+          cmff1: 1234abcd
+          cmff2: abcd1234
         www.facebook.com:
-          - username: cmff1
-            password: 1234abcd
+          cmff1: 1234abcd
     FileName:
       type: string
       example: supersecretfile.txt
