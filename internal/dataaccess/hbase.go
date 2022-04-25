@@ -283,3 +283,31 @@ func DeletePassword(propietaryUser, website, username string) error {
 	_, err = HBaseClient.Put(putReq)
 	return err
 }
+
+// Update a password in the database
+// Given propietary user, website, username and password
+// Return error
+func UpdatePassword(propietaryUser, website, username, password string) error {
+	passwords, err := GetPasswords(propietaryUser, website)
+	if err != nil {
+		return err
+	}
+
+	// Reverse website
+	website = stringutilities.ReverseSplitJoin(website)
+
+	passwords[username] = password
+	value, err := json.Marshal(passwords)
+	if err != nil {
+		return err
+	}
+	putReq, err := hrpc.NewPutStr(context.Background(), PASSWORDS_TABLE, propietaryUser,
+		map[string]map[string][]byte{PASSWORDS_DATA_COLFAM: {
+			website: value,
+		}})
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Put(putReq)
+	return err
+}

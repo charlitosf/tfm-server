@@ -6,13 +6,13 @@ type CreatePasswordRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-// Create password response type struct
-type CreatePasswordResponse struct {
-	Error *Error `json:"error,omitempty"`
-}
-
 // Get password response type struct
 type GetPasswordResponse struct {
 	Error    *Error `json:"error,omitempty"`
 	Password string `json:"password,omitempty"`
+}
+
+// Update password request type struct
+type UpdatePasswordRequest struct {
+	Password string `json:"password" binding:"required"`
 }

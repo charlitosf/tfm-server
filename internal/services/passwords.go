@@ -52,3 +52,16 @@ func DeletePassword(proprietaryUser, website, username string) error {
 		return dataaccess.DeletePassword(proprietaryUser, website, username)
 	}
 }
+
+// Update a password
+// Given a proprietary user, a website, a username and a new password
+// Return error
+func UpdatePassword(proprietaryUser, website, username, newPassword string) error {
+	// Check if password exists
+	_, err := dataaccess.GetPassword(proprietaryUser, website, username)
+	if err != nil {
+		return errors.New("password does not exist")
+	} else {
+		return dataaccess.UpdatePassword(proprietaryUser, website, username, newPassword)
+	}
+}
