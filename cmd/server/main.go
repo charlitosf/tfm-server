@@ -40,7 +40,7 @@ func main() {
 		}
 
 		// Passwords group
-		passwords := authorized.Group("/passwords", middleware.ReverseWebsite())
+		passwords := authorized.Group("/passwords")
 		{
 			// Get all passwords
 			passwords.GET("/", controllers.GetPasswords)
