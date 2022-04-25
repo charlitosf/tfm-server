@@ -17,7 +17,7 @@ func GetPasswords(c *gin.Context) {
 // Get all passwords from website handler
 func GetPasswordsByWebsite(c *gin.Context) {
 	// Get website
-	website := c.Param("website")
+	website := c.MustGet("website").(string)
 	// Get user
 	user := c.MustGet("username").(string)
 	// Get passwords
@@ -36,7 +36,7 @@ func CreatePassword(c *gin.Context) {
 	err := c.BindJSON(&request)
 	if err == nil {
 		user := c.MustGet("username").(string)
-		website := c.Param("website")
+		website := c.MustGet("website").(string)
 		// Create password
 		err = services.CreatePassword(user, website, request.Username, request.Password)
 		if err != nil {
