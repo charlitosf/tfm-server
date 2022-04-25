@@ -127,3 +127,19 @@ func DeleteUser(username string) error {
 	_, err = HBaseClient.Delete(delReq)
 	return err
 }
+
+// Update user's password
+// Given username, password and salt
+// Return error
+func UpdateUserPassword(username string, hashedPassword, salt []byte) error {
+	value := map[string]map[string][]byte{USERS_DATA_COLFAM: {
+		USERS_PASSWORD_COL: hashedPassword,
+		USERS_SALT_COL:     salt,
+	}}
+	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, username, value)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Put(putReq)
+	return err
+}

@@ -9,9 +9,20 @@ import (
 
 // Update user ('s password) handler
 func UpdateUser(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Bind request body
+	var request httptypes.UpdateUserRequest
+	err := c.BindJSON(&request)
+	if err == nil {
+		// Update user
+		err = services.UpdateUserPassword(c.MustGet("username").(string), request.Password, c.MustGet("token").(string))
+		if err != nil {
+			c.JSON(400, httptypes.UpdateUserResponse{Error: &httptypes.Error{Message: err.Error()}})
+		} else {
+			c.JSON(200, httptypes.UpdateUserResponse{})
+		}
+	} else {
+		c.JSON(400, httptypes.UpdateUserResponse{Error: &httptypes.Error{Message: err.Error()}})
+	}
 }
 
 // Delete user handler
