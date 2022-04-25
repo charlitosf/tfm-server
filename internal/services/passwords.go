@@ -25,3 +25,10 @@ func CreatePassword(proprietaryUser, website, username, password string) error {
 func GetPasswords(proprietaryUser, website string) (map[string]string, error) {
 	return dataaccess.GetPasswords(proprietaryUser, website)
 }
+
+// Get all the passwords
+// Given a proprietary user
+// Return a map of websites and passwords
+func GetAllPasswords(proprietaryUser string) (map[string]map[string]string, error) {
+	return dataaccess.GetAllPasswords(proprietaryUser)
+}

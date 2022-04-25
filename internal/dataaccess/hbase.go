@@ -198,6 +198,36 @@ func GetPasswords(user, website string) (map[string]string, error) {
 	return passwords, nil
 }
 
+// Get all passwords from a user from the database
+// Given propietary user
+// Return a map of websites and passwords
+func GetAllPasswords(user string) (map[string]map[string]string, error) {
+	// Get whole row
+	getReq, err := hrpc.NewGetStr(context.Background(), PASSWORDS_TABLE, user)
+	if err != nil {
+		return nil, err
+	}
+	result, err := HBaseClient.Get(getReq)
+	if err != nil {
+		return nil, err
+	}
+	if result.Cells == nil || len(result.Cells) == 0 {
+		return make(map[string]map[string]string), nil
+	}
+	var passwords map[string]map[string]string = make(map[string]map[string]string)
+	for _, cell := range result.Cells {
+		if string(cell.Family) == PASSWORDS_DATA_COLFAM {
+			var websitePasswords map[string]string = make(map[string]string)
+			err = json.Unmarshal(cell.Value, &websitePasswords)
+			if err != nil {
+				return nil, err
+			}
+			passwords[stringutilities.ReverseSplitJoin(string(cell.Qualifier))] = websitePasswords
+		}
+	}
+	return passwords, nil
+}
+
 // Create password in the database
 // Given propietary user, website, username and password
 // Return error
