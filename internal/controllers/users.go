@@ -16,12 +16,12 @@ func UpdateUser(c *gin.Context) {
 		// Update user
 		err = services.UpdateUserPassword(c.MustGet("username").(string), request.Password, c.MustGet("token").(string))
 		if err != nil {
-			c.JSON(400, httptypes.UpdateUserResponse{Error: &httptypes.Error{Message: err.Error()}})
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(200, httptypes.UpdateUserResponse{})
+			c.JSON(200, httptypes.GenericResponse{})
 		}
 	} else {
-		c.JSON(400, httptypes.UpdateUserResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}
 }
 
@@ -29,8 +29,8 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	err := services.DeleteUser(c.Param("username"), c.MustGet("token").(string))
 	if err != nil {
-		c.JSON(400, httptypes.DeleteUserResponse{Error: &httptypes.Error{Message: err.Error()}})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
-		c.JSON(200, httptypes.DeleteUserResponse{})
+		c.JSON(200, httptypes.GenericResponse{})
 	}
 }
