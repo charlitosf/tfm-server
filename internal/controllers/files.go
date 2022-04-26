@@ -54,9 +54,24 @@ func GetFile(c *gin.Context) {
 
 // Update a file handler
 func UpdateFile(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user from the context
+	user := c.MustGet("username").(string)
+	// Get filename from the path
+	filename := c.Param("name")
+	// Bind request body to UpdateFile struct
+	var updateFile httptypes.UpdateFileRequest
+	err := c.BindJSON(&updateFile)
+	if err == nil {
+		// Call services UpdateFile method
+		err = services.UpdateFile(user, filename, updateFile.Content)
+		if err == nil {
+			c.JSON(200, httptypes.GenericResponse{})
+		} else {
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+		}
+	} else {
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+	}
 }
 
 // Delete a file handler

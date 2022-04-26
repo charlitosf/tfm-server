@@ -35,3 +35,15 @@ func DeleteFile(propietaryUser, filename string) error {
 	}
 	return dataaccess.DeleteFile(propietaryUser, filename)
 }
+
+// Update a file in the database
+// Given propietary user, filename and file data
+// Return error
+func UpdateFile(propietaryUser, filename string, data string) error {
+	// Check if file exists
+	_, err := dataaccess.GetFile(propietaryUser, filename)
+	if err != nil {
+		return errors.New("file not found")
+	}
+	return dataaccess.UpdateFile(propietaryUser, filename, data)
+}

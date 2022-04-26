@@ -359,3 +359,18 @@ func DeleteFile(propietaryUser, filename string) error {
 	_, err = HBaseClient.Delete(delReq)
 	return err
 }
+
+// Update a file in the database
+// Given propietary user, filename and file data
+// Return error
+func UpdateFile(propietaryUser, filename string, data string) error {
+	putReq, err := hrpc.NewPutStr(context.Background(), FILES_TABLE, propietaryUser,
+		map[string]map[string][]byte{FILES_DATA_COLFAM: {
+			filename: []byte(data),
+		}})
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Put(putReq)
+	return err
+}
