@@ -1,11 +1,19 @@
 package services
 
-import "charlitosf/tfm-server/internal/dataaccess"
+import (
+	"charlitosf/tfm-server/internal/dataaccess"
+	"errors"
+)
 
 // Create file in the database
 // Given propietary user, filename and file data
 // Return error
 func CreateFile(propietaryUser, filename string, data string) error {
+	// Check if a file with that name already exists
+	_, err := dataaccess.GetFile(propietaryUser, filename)
+	if err == nil {
+		return errors.New("file already exists")
+	}
 	return dataaccess.CreateFile(propietaryUser, filename, data)
 }
 

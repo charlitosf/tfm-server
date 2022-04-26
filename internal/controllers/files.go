@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"charlitosf/tfm-server/internal/dataaccess"
+	"charlitosf/tfm-server/internal/services"
 	"charlitosf/tfm-server/pkg/httptypes"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +22,8 @@ func CreateFile(c *gin.Context) {
 	var createFile httptypes.CreateFileRequest
 	err := c.BindJSON(&createFile)
 	if err == nil {
-		// Call dataaccess CreateFile method
-		err = dataaccess.CreateFile(user, createFile.Name, createFile.Content)
+		// Call services CreateFile method
+		err = services.CreateFile(user, createFile.Name, createFile.Content)
 		if err == nil {
 			c.JSON(201, httptypes.GenericResponse{})
 		} else {
@@ -40,8 +40,8 @@ func GetFile(c *gin.Context) {
 	user := c.MustGet("username").(string)
 	// Get filename from the path
 	filename := c.Param("name")
-	// Call dataaccess GetFile method
-	data, err := dataaccess.GetFile(user, filename)
+	// Call services GetFile method
+	data, err := services.GetFile(user, filename)
 	if err == nil {
 		c.JSON(200, httptypes.GetFileResponse{
 			Name:    filename,
