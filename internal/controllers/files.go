@@ -19,7 +19,7 @@ func CreateFile(c *gin.Context) {
 	// Get user from the context
 	user := c.MustGet("username").(string)
 	// Bind request body to CreateFile struct
-	var createFile httptypes.CreateFile
+	var createFile httptypes.CreateFileRequest
 	err := c.BindJSON(&createFile)
 	if err == nil {
 		// Call dataaccess CreateFile method
@@ -36,9 +36,20 @@ func CreateFile(c *gin.Context) {
 
 // Get a file handler
 func GetFile(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user from the context
+	user := c.MustGet("username").(string)
+	// Get filename from the path
+	filename := c.Param("name")
+	// Call dataaccess GetFile method
+	data, err := dataaccess.GetFile(user, filename)
+	if err == nil {
+		c.JSON(200, httptypes.GetFileResponse{
+			Name:    filename,
+			Content: data,
+		})
+	} else {
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+	}
 }
 
 // Update a file handler

@@ -329,3 +329,21 @@ func CreateFile(propietaryUser, filename string, data string) error {
 	_, err = HBaseClient.Put(putReq)
 	return err
 }
+
+// Get a file from the database
+// Given propietary user and filename
+// Return encoded file data
+func GetFile(propietaryUser, filename string) (string, error) {
+	getReq, err := hrpc.NewGetStr(context.Background(), FILES_TABLE, propietaryUser, hrpc.Families(map[string][]string{FILES_DATA_COLFAM: {filename}}))
+	if err != nil {
+		return "", err
+	}
+	result, err := HBaseClient.Get(getReq)
+	if err != nil {
+		return "", err
+	}
+	if result.Cells == nil || len(result.Cells) != 1 {
+		return "", errors.New("file not found")
+	}
+	return string(result.Cells[0].Value), nil
+}

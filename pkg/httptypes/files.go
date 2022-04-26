@@ -1,7 +1,13 @@
 package httptypes
 
-// Create file type struct
-type CreateFile struct {
+// Create file request type struct
+type CreateFileRequest struct {
 	Name    string `json:"name" binding:"required"`
 	Content string `json:"content" binding:"required"`
+}
+
+// Get file response type struct
+type GetFileResponse struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
 }
