@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/tsuna/gohbase"
+	"github.com/tsuna/gohbase/filter"
 	"github.com/tsuna/gohbase/hrpc"
 )
 
@@ -379,8 +380,9 @@ func UpdateFile(propietaryUser, filename string, data string) error {
 // Given propietary user
 // Return list of filenames
 func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
-	// TODO Properly filter by row
-	scanReq, err := hrpc.NewScanStr(context.Background(), FILES_TABLE)
+	// Filter by row
+	filter := filter.NewRowFilter(filter.NewCompareFilter(filter.Equal, filter.NewSubstringComparator(propietaryUser)))
+	scanReq, err := hrpc.NewScanStr(context.Background(), FILES_TABLE, hrpc.Filters(filter))
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +390,7 @@ func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
 	var filenames []map[string]string = make([]map[string]string, 0)
 	for result, err := scanner.Next(); err == nil; result, err = scanner.Next() {
 		for _, cell := range result.Cells {
-			if string(cell.Family) == FILES_DATA_COLFAM && string(cell.Row) == propietaryUser {
+			if string(cell.Family) == FILES_DATA_COLFAM {
 				var filename map[string]string = make(map[string]string)
 				filename["name"] = string(cell.Qualifier)
 				filenames = append(filenames, filename)
