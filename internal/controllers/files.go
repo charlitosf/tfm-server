@@ -61,7 +61,15 @@ func UpdateFile(c *gin.Context) {
 
 // Delete a file handler
 func DeleteFile(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user from the context
+	user := c.MustGet("username").(string)
+	// Get filename from the path
+	filename := c.Param("name")
+	// Call services DeleteFile method
+	err := services.DeleteFile(user, filename)
+	if err == nil {
+		c.JSON(200, httptypes.GenericResponse{})
+	} else {
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+	}
 }

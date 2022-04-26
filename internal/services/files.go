@@ -23,3 +23,15 @@ func CreateFile(propietaryUser, filename string, data string) error {
 func GetFile(propietaryUser, filename string) (string, error) {
 	return dataaccess.GetFile(propietaryUser, filename)
 }
+
+// Delete a file from the database
+// Given propietary user and filename
+// Return error
+func DeleteFile(propietaryUser, filename string) error {
+	// Check if file exists
+	_, err := dataaccess.GetFile(propietaryUser, filename)
+	if err != nil {
+		return errors.New("file not found")
+	}
+	return dataaccess.DeleteFile(propietaryUser, filename)
+}

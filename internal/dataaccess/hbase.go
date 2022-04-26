@@ -347,3 +347,15 @@ func GetFile(propietaryUser, filename string) (string, error) {
 	}
 	return string(result.Cells[0].Value), nil
 }
+
+// Delete a file from the database
+// Given propietary user and filename
+// Return error
+func DeleteFile(propietaryUser, filename string) error {
+	delReq, err := hrpc.NewDelStr(context.Background(), FILES_TABLE, propietaryUser, nil)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Delete(delReq)
+	return err
+}
