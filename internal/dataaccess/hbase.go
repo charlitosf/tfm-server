@@ -24,6 +24,9 @@ const USERS_EMAIL_COL string = "email"
 const PASSWORDS_TABLE string = "passwords"
 const PASSWORDS_DATA_COLFAM string = "data"
 
+const FILES_TABLE string = "files"
+const FILES_DATA_COLFAM string = "data"
+
 // HBase client variable
 var HBaseClient gohbase.Client
 var host string
@@ -304,6 +307,21 @@ func UpdatePassword(propietaryUser, website, username, password string) error {
 	putReq, err := hrpc.NewPutStr(context.Background(), PASSWORDS_TABLE, propietaryUser,
 		map[string]map[string][]byte{PASSWORDS_DATA_COLFAM: {
 			website: value,
+		}})
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Put(putReq)
+	return err
+}
+
+// Create encoded file in the database
+// Given propietary user, filename and file data
+// Return error
+func CreateFile(propietaryUser, filename string, data string) error {
+	putReq, err := hrpc.NewPutStr(context.Background(), FILES_TABLE, propietaryUser,
+		map[string]map[string][]byte{FILES_DATA_COLFAM: {
+			filename: []byte(data),
 		}})
 	if err != nil {
 		return err
