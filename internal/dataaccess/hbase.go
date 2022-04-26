@@ -374,3 +374,26 @@ func UpdateFile(propietaryUser, filename string, data string) error {
 	_, err = HBaseClient.Put(putReq)
 	return err
 }
+
+// Get all filenames from the database
+// Given propietary user
+// Return list of filenames
+func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
+	// TODO Properly filter by row
+	scanReq, err := hrpc.NewScanStr(context.Background(), FILES_TABLE)
+	if err != nil {
+		return nil, err
+	}
+	scanner := HBaseClient.Scan(scanReq)
+	var filenames []map[string]string = make([]map[string]string, 0)
+	for result, err := scanner.Next(); err == nil; result, err = scanner.Next() {
+		for _, cell := range result.Cells {
+			if string(cell.Family) == FILES_DATA_COLFAM && string(cell.Row) == propietaryUser {
+				var filename map[string]string = make(map[string]string)
+				filename["name"] = string(cell.Qualifier)
+				filenames = append(filenames, filename)
+			}
+		}
+	}
+	return filenames, nil
+}

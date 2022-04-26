@@ -9,9 +9,15 @@ import (
 
 // Get all files handler
 func GetFiles(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"status": "ok",
-	})
+	// Get user from the context
+	user := c.MustGet("username").(string)
+	// Call services GetAllFilenames method
+	files, err := services.GetAllFilenames(user)
+	if err == nil {
+		c.JSON(200, files)
+	} else {
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+	}
 }
 
 // Create a file handler

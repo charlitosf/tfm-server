@@ -47,3 +47,10 @@ func UpdateFile(propietaryUser, filename string, data string) error {
 	}
 	return dataaccess.UpdateFile(propietaryUser, filename, data)
 }
+
+// Get all filenames from the database
+// Given propietary user
+// Return filenames, error
+func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
+	return dataaccess.GetAllFilenames(propietaryUser)
+}
