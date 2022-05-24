@@ -14,25 +14,49 @@ servers:
 
 components:
   schemas:
-    Credentials:
+    CredentialsLogin:
       type: object
       allOf:
         - $ref: "#/components/schemas/Password"
       properties:
         username:
           $ref: "#/components/schemas/Username"
+    Credentials:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/SignedPassword"
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+    CredentialsTOTP:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Password"
+      properties:
+        username:
+          $ref: "#/components/schemas/Username"
+        totp:
+          $ref: "#/components/schemas/TOTP"
     Token:
       type: object
       properties:
         token:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    TOTP:
+      type: string
+      example: 636363
     ErrorObject:
       type: object
       properties:
         message:
           type: string
           example: "Failed"
+    SignedPassword:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Password"
+        - $ref: "#/components/schemas/Signature"
     Password:
       type: object
       properties:
@@ -40,6 +64,13 @@ components:
           type: string
           format: password
           example: 1234abcd
+    Signature:
+      type: object
+      properties:
+        signature:
+          type: string
+          format: base64
+          example: "AQIDBAUGBwgJCgsMDQ4PEA=="
     UserMetadata:
       type: object
       properties:
@@ -65,7 +96,7 @@ components:
     User:
       type: object
       allOf:
-        - $ref: "#/components/schemas/Credentials"
+        - $ref: "#/components/schemas/CredentialsLogin"
         - $ref: "#/components/schemas/UserMetadata"
     PasswordList:
       type: object
@@ -73,8 +104,12 @@ components:
         passwords:
           type: object
       example:
-        cmff1: 1234abcd
-        cmff2: abcd1234
+        cmff1: 
+          password: 1234abcd
+          signature: AQIDBAUGBwgJCgsMDQ4PEA==
+        cmff2:
+          password: abcd1234
+          signature: AQIDBAUGBwgJCgsMDQ4PEA==
     PasswordExport:
       type: object
       example:
@@ -103,6 +138,7 @@ components:
       allOf:
         - $ref: "#/components/schemas/FileNameObject"
         - $ref: "#/components/schemas/FileContentObject"
+        - $ref: "#/components/schemas/Signature"
     FileNamesList:
       type: array
       items:
@@ -110,7 +146,9 @@ components:
     Username:
       type: string
       example: cmff1
-
+    TOTPUrl:
+      type: string
+      example: otpauth://totp/cmff1?secret=JBSWY3DPEHPK3PXP&issuer=cmff1
       
 
   responses:
@@ -175,7 +213,7 @@ paths:
           application/json:
             schema:
               type: object
-              $ref: "#/components/schemas/Credentials"
+              $ref: "#/components/schemas/CredentialsTOTP"
       responses:
         '200':
           description: OK
@@ -214,6 +252,13 @@ paths:
       responses:
         '201':
           description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totpurl:
+                    $ref: '#/components/schemas/TOTPUrl'
         '400':
           $ref: "#/components/responses/IncorrectFormat"
   /users/{username}:
@@ -228,7 +273,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Password"
+              type: object
+              allOf:
+                - $ref: "#/components/schemas/Password"
+              properties:
+                totp:
+                  $ref: '#/components/schemas/TOTP'
       responses:
         '200':
           description: User modified successfully
@@ -243,6 +293,14 @@ paths:
     delete:
       operationId: deleteUser
       description: Delete a certain user in the server, alongside all of its information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                totp:
+                  $ref: '#/components/schemas/TOTP'
       tags:
         - Users
       responses:
@@ -258,6 +316,14 @@ paths:
     get:
       operationId: getAllPasswords
       description: Export all saved passwords
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                totp:
+                  $ref: '#/components/schemas/TOTP'
       tags:
         - Passwords
       responses:
@@ -326,7 +392,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Password"
+                $ref: "#/components/schemas/SignedPassword"
         '401':
           $ref: "#/components/responses/Unauthorized"
         '403':
@@ -342,7 +408,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Password"
+              $ref: "#/components/schemas/SignedPassword"
       responses:
         '200':
           description: Password modified successfully
@@ -357,6 +423,11 @@ paths:
     delete:
       operationId: deletePassword
       description: Delete a certain password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signature'
       tags:
         - Passwords
       responses:
@@ -439,7 +510,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/FileContentObject"
+              type: object
+              allOf:
+                - $ref: "#/components/schemas/FileContentObject"
+                - $ref: "#/components/schemas/Signature"
       responses:
         '200':
           description: File modified successfully
@@ -454,6 +528,11 @@ paths:
     delete:
       operationId: deleteFile
       description: Remove a certain file
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signature'
       tags:
         - Files
       responses:
