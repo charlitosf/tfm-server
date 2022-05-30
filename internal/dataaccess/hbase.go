@@ -21,6 +21,7 @@ const USERS_PUBKEY_COL string = "pubkey"
 const USERS_PRIVKEY_COL string = "privkey"
 const USERS_NAME_COL string = "name"
 const USERS_EMAIL_COL string = "email"
+const USERS_TOTP_COL string = "totp"
 
 const PASSWORDS_TABLE string = "passwords"
 const PASSWORDS_DATA_COLFAM string = "data"
@@ -51,6 +52,7 @@ func CreateUser(user User, hashedPassword, salt []byte) error {
 		USERS_PRIVKEY_COL:  []byte(user.PrivKey),
 		USERS_NAME_COL:     []byte(user.Name),
 		USERS_EMAIL_COL:    []byte(user.Email),
+		USERS_TOTP_COL:     []byte(user.TOTPinfo),
 	}}
 	putReq, err := hrpc.NewPutStr(context.Background(), USERS_TABLE, user.Username, value)
 	if err != nil {
@@ -91,6 +93,8 @@ func GetUser(username string) (*User, error) {
 				user.Name = string(cell.Value)
 			case USERS_EMAIL_COL:
 				user.Email = string(cell.Value)
+			case USERS_TOTP_COL:
+				user.TOTPinfo = string(cell.Value)
 			}
 		}
 	}

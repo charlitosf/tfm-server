@@ -50,11 +50,11 @@ func Signup(c *gin.Context) {
 	err := c.BindJSON(&req)
 	if err == nil { // Correct request
 		// Perform signup
-		err := services.Signup(req.Username, req.Password, req.Name, req.Email, req.PubKey, req.PrivKey)
+		url, err := services.Signup(req.Username, req.Password, req.Name, req.Email, req.PubKey, req.PrivKey)
 		if err != nil { // Username already exists or other error
 			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
-			c.JSON(201, httptypes.GenericResponse{})
+			c.JSON(201, httptypes.SignupResponse{OTP: url})
 		}
 	} else {
 		// If the request is incorrect, abort with an error

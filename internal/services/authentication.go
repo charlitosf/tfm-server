@@ -6,20 +6,34 @@ import (
 	"charlitosf/tfm-server/internal/dataaccess"
 	"charlitosf/tfm-server/internal/jwt"
 	"errors"
+
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 )
 
 // Signup
 // Given a whole user, creates it
-func Signup(username, password, name, email, pubKey, privKey string) error {
+func Signup(username, password, name, email, pubKey, privKey string) (string, error) {
 	// Check if the user already exists
 	_, err := dataaccess.GetUser(username)
 	if err == nil {
-		return errors.New("user already exists")
+		return "", errors.New("user already exists")
 	}
 
 	// Hash the password using argon2
 	salt := crypt.GenerateSalt()
 	hashedPassword := crypt.PBKDF([]byte(password), salt)
+
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "ISS Server",
+		AccountName: email,
+		Algorithm:   otp.AlgorithmSHA256,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	url := key.URL()
 
 	user := dataaccess.User{
 		Username: username,
@@ -27,10 +41,15 @@ func Signup(username, password, name, email, pubKey, privKey string) error {
 		PrivKey:  privKey,
 		Name:     name,
 		Email:    email,
+		TOTPinfo: url,
 	}
 
 	// Create the user
-	return dataaccess.CreateUser(user, hashedPassword, salt)
+	err = dataaccess.CreateUser(user, hashedPassword, salt)
+	if err != nil {
+		return "", err
+	}
+	return url, nil
 }
 
 // Login

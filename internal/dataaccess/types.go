@@ -7,4 +7,5 @@ type User struct {
 	Email    string `json:"email"`
 	PubKey   string `json:"pubkey"`
 	PrivKey  string `json:"privkey"`
+	TOTPinfo string `json:"totp"`
 }

@@ -31,3 +31,8 @@ type SignupRequest struct {
 	Credentials
 	UserMetadata
 }
+
+// Signup response type struct
+type SignupResponse struct {
+	OTP string `json:"otp"`
+}
