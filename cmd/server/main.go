@@ -10,7 +10,7 @@ import (
 func main() {
 	// Main router object
 	r := gin.Default()
-
+	r.Use(middleware.CORS())
 	// Routes
 
 	// Authorization group
