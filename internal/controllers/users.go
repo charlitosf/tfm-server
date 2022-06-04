@@ -14,7 +14,7 @@ func UpdateUser(c *gin.Context) {
 	err := c.BindJSON(&request)
 	if err == nil {
 		// Update user
-		err = services.UpdateUserPassword(c.MustGet("username").(string), request.Password, c.MustGet("token").(string))
+		err = services.UpdateUserPassword(c.MustGet("username").(string), request.Password, c.MustGet("token").(string), c.MustGet("xtotp").(string))
 		if err != nil {
 			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {

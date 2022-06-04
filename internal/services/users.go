@@ -36,7 +36,7 @@ func DeleteUser(username, token, totpToken string) error {
 // and logs out the user upon update
 // Given username, new password, token, and totp token
 // Return an error
-func UpdateUserPassword(username, newPassword, token string) error {
+func UpdateUserPassword(username, newPassword, token, totpToken string) error {
 	// Check if user exists
 	user, err := dataaccess.GetUser(username)
 	if err != nil {
@@ -44,7 +44,7 @@ func UpdateUserPassword(username, newPassword, token string) error {
 	}
 
 	// Check if totp token is valid
-	err = validateTOTP(user.TOTPinfo, token)
+	err = validateTOTP(user.TOTPinfo, totpToken)
 	if err != nil {
 		return err
 	}
