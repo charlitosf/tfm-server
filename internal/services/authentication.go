@@ -28,7 +28,7 @@ func Signup(username, password, name, email, pubKey, privKey string) (string, er
 
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      "ISS Server",
-		AccountName: email,
+		AccountName: username,
 		Algorithm:   otp.AlgorithmSHA256,
 	})
 	if err != nil {
