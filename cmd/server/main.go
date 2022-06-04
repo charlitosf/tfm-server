@@ -2,12 +2,23 @@ package main
 
 import (
 	"charlitosf/tfm-server/internal/controllers"
+	"charlitosf/tfm-server/internal/crypt"
 	"charlitosf/tfm-server/internal/middleware"
+	"charlitosf/tfm-server/internal/services"
+	"fmt"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/term"
 )
 
 func main() {
+	pass, err := getServerPassword()
+	if err != nil {
+		panic(err)
+	}
+	services.ServerPassword = crypt.Hash256(pass)
+
 	// Main router object
 	r := gin.Default()
 	r.Use(middleware.CORS())
@@ -74,4 +85,15 @@ func main() {
 
 	// Start the server
 	r.Run()
+}
+
+// Function that reads the server password from the terminal
+func getServerPassword() (string, error) {
+	fmt.Print("Enter Password: ")
+	bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytePassword), nil
 }

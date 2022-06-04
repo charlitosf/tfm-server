@@ -11,6 +11,8 @@ import (
 	"github.com/pquerna/otp/totp"
 )
 
+var ServerPassword []byte
+
 // Signup
 // Given a whole user, creates it
 func Signup(username, password, name, email, pubKey, privKey string) (string, error) {
@@ -35,13 +37,18 @@ func Signup(username, password, name, email, pubKey, privKey string) (string, er
 
 	url := key.URL()
 
+	// Encrypt url using AES with ServerPassword
+	encryptedURL := crypt.EncryptAES([]byte(url), ServerPassword)
+	// Encode the encrypted url to base64
+	encryptedURL64 := crypt.Encode64(encryptedURL)
+
 	user := dataaccess.User{
 		Username: username,
 		PubKey:   pubKey,
 		PrivKey:  privKey,
 		Name:     name,
 		Email:    email,
-		TOTPinfo: url,
+		TOTPinfo: encryptedURL64,
 	}
 
 	// Create the user
@@ -98,8 +105,17 @@ func Logout(token string) error {
 // Validate TOTP
 // Given a user and a totp token, checks if it is valid
 func validateTOTP(totpInfo, totpToken string) error {
+	// Decode totp info
+	totpInfoBytes, err := crypt.Decode64(totpInfo)
+	if err != nil {
+		return err
+	}
+
+	// Decrypt totp info
+	totpInfoDecrypted := crypt.DecryptAES(totpInfoBytes, ServerPassword)
+
 	// Get the totp info
-	key, err := otp.NewKeyFromURL(totpInfo)
+	key, err := otp.NewKeyFromURL(string(totpInfoDecrypted))
 	if err != nil {
 		return err
 	}
