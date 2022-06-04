@@ -1,7 +1,6 @@
 package services
 
 import (
-	"charlitosf/tfm-server/internal/crypt"
 	"charlitosf/tfm-server/internal/dataaccess"
 	"errors"
 )
@@ -16,26 +15,7 @@ func CreatePassword(proprietaryUser, website, username, password, signature stri
 		return errors.New("password already exists")
 	}
 
-	// Get user
-	user, err := dataaccess.GetUser(proprietaryUser)
-	if err != nil {
-		return err
-	}
-
-	// Get its public key
-	pubKey, err := crypt.DecodePubKey(user.PubKey)
-	if err != nil {
-		return err
-	}
-
-	// Decode 64 signature
-	signatureBytes, err := crypt.Decode64(signature)
-	if err != nil {
-		return err
-	}
-
-	// Verify signature
-	err = crypt.VerifyRSASignature(password, signatureBytes, pubKey)
+	err = validateSignature(proprietaryUser, password, signature)
 	if err != nil {
 		return err
 	}
@@ -87,24 +67,7 @@ func DeletePassword(proprietaryUser, website, username, signature string) error 
 		return errors.New("password does not exist")
 	}
 
-	// Get user
-	user, err := dataaccess.GetUser(proprietaryUser)
-	if err != nil {
-		return err
-	}
-	// Get its public key
-	pubKey, err := crypt.DecodePubKey(user.PubKey)
-	if err != nil {
-		return err
-	}
-
-	// Decode 64 signature
-	signatureBytes, err := crypt.Decode64(signature)
-	if err != nil {
-		return err
-	}
-	// Verify signature
-	err = crypt.VerifyRSASignature(website+username, signatureBytes, pubKey)
+	err = validateSignature(proprietaryUser, website+username, signature)
 	if err != nil {
 		return err
 	}
@@ -122,26 +85,7 @@ func UpdatePassword(proprietaryUser, website, username, newPassword, signature s
 		return errors.New("password does not exist")
 	}
 
-	// Get user
-	user, err := dataaccess.GetUser(proprietaryUser)
-	if err != nil {
-		return err
-	}
-
-	// Get its public key
-	pubKey, err := crypt.DecodePubKey(user.PubKey)
-	if err != nil {
-		return err
-	}
-
-	// Decode 64 signature
-	signatureBytes, err := crypt.Decode64(signature)
-	if err != nil {
-		return err
-	}
-
-	// Verify signature
-	err = crypt.VerifyRSASignature(newPassword, signatureBytes, pubKey)
+	err = validateSignature(proprietaryUser, newPassword, signature)
 	if err != nil {
 		return err
 	}
