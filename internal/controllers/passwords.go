@@ -46,7 +46,7 @@ func CreatePassword(c *gin.Context) {
 		user := c.MustGet("username").(string)
 		website := c.Param("website")
 		// Create password
-		err = services.CreatePassword(user, website, request.Username, request.Password)
+		err = services.CreatePassword(user, website, request.Username, request.Password, request.Signature)
 		if err != nil {
 			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
@@ -70,7 +70,7 @@ func GetPassword(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
-		c.JSON(200, httptypes.GetPasswordResponse{Password: password})
+		c.JSON(200, httptypes.GetPasswordResponse{Password: password.Password, Signature: password.Signature})
 	}
 }
 
@@ -87,7 +87,7 @@ func UpdatePassword(c *gin.Context) {
 	err := c.BindJSON(&request)
 	if err == nil {
 		// Update password
-		err = services.UpdatePassword(user, website, username, request.Password)
+		err = services.UpdatePassword(user, website, username, request.Password, request.Signature)
 		if err != nil {
 			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {
@@ -106,11 +106,18 @@ func DeletePassword(c *gin.Context) {
 	website := c.Param("website")
 	// Get username
 	username := c.Param("username")
-	// Delete password
-	err := services.DeletePassword(user, website, username)
-	if err != nil {
-		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+	// Bind request body
+	var request httptypes.DeletePasswordRequest
+	err := c.BindJSON(&request)
+	if err == nil {
+		// Delete password
+		err := services.DeletePassword(user, website, username, request.Signature)
+		if err != nil {
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+		} else {
+			c.JSON(200, httptypes.GenericResponse{})
+		}
 	} else {
-		c.JSON(200, httptypes.GenericResponse{})
+		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}
 }

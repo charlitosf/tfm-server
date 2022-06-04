@@ -9,3 +9,9 @@ type User struct {
 	PrivKey  string `json:"privkey"`
 	TOTPinfo string `json:"totp"`
 }
+
+// Password type
+type Password struct {
+	Password  string `json:"password"`
+	Signature string `json:"signature"`
+}

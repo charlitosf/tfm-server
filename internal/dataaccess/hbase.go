@@ -161,24 +161,24 @@ func UpdateUserPassword(username string, hashedPassword, salt []byte) error {
 
 // Get a password related to a username from a website from the database
 // Given proprietary user, website and username
-// Return a password string
-func GetPassword(user, website, username string) (string, error) {
+// Return a Password
+func GetPassword(user, website, username string) (*Password, error) {
 	passwords, err := GetPasswords(user, website)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	for uname, password := range passwords {
 		if uname == username {
-			return password, nil
+			return &password, nil
 		}
 	}
-	return "", errors.New("password not found")
+	return nil, errors.New("password not found")
 }
 
 // Get passwords from website from database
 // Given propietary user and website
 // Return a map of usernames and passwords
-func GetPasswords(user, website string) (map[string]string, error) {
+func GetPasswords(user, website string) (map[string]Password, error) {
 	// Reverse website
 	website = stringutilities.ReverseSplitJoin(website)
 	// Filter by website
@@ -192,9 +192,9 @@ func GetPasswords(user, website string) (map[string]string, error) {
 		return nil, err
 	}
 	if result.Cells == nil || len(result.Cells) == 0 {
-		return make(map[string]string), nil
+		return make(map[string]Password), nil
 	}
-	var passwords map[string]string = make(map[string]string)
+	var passwords map[string]Password = make(map[string]Password)
 	for _, cell := range result.Cells {
 		if string(cell.Qualifier) == website {
 			err = json.Unmarshal(cell.Value, &passwords)
@@ -209,7 +209,7 @@ func GetPasswords(user, website string) (map[string]string, error) {
 // Get all passwords from a user from the database
 // Given propietary user
 // Return a map of websites and passwords
-func GetAllPasswords(user string) (map[string]map[string]string, error) {
+func GetAllPasswords(user string) (map[string]map[string]Password, error) {
 	// Get whole row
 	getReq, err := hrpc.NewGetStr(context.Background(), PASSWORDS_TABLE, user)
 	if err != nil {
@@ -220,12 +220,12 @@ func GetAllPasswords(user string) (map[string]map[string]string, error) {
 		return nil, err
 	}
 	if result.Cells == nil || len(result.Cells) == 0 {
-		return make(map[string]map[string]string), nil
+		return make(map[string]map[string]Password), nil
 	}
-	var passwords map[string]map[string]string = make(map[string]map[string]string)
+	var passwords map[string]map[string]Password = make(map[string]map[string]Password)
 	for _, cell := range result.Cells {
 		if string(cell.Family) == PASSWORDS_DATA_COLFAM {
-			var websitePasswords map[string]string = make(map[string]string)
+			var websitePasswords map[string]Password = make(map[string]Password)
 			err = json.Unmarshal(cell.Value, &websitePasswords)
 			if err != nil {
 				return nil, err
@@ -239,7 +239,7 @@ func GetAllPasswords(user string) (map[string]map[string]string, error) {
 // Create password in the database
 // Given propietary user, website, username and password
 // Return error
-func CreatePassword(propietaryUser, website, username, password string) error {
+func CreatePassword(propietaryUser, website, username, password, signature string) error {
 	passwords, err := GetPasswords(propietaryUser, website)
 	if err != nil {
 		return err
@@ -248,7 +248,10 @@ func CreatePassword(propietaryUser, website, username, password string) error {
 	// Reverse website
 	website = stringutilities.ReverseSplitJoin(website)
 
-	passwords[username] = password
+	passwords[username] = Password{
+		Password:  password,
+		Signature: signature,
+	}
 	value, err := json.Marshal(passwords)
 	if err != nil {
 		return err
@@ -293,9 +296,9 @@ func DeletePassword(propietaryUser, website, username string) error {
 }
 
 // Update a password in the database
-// Given propietary user, website, username and password
+// Given propietary user, website, username, password and its signature
 // Return error
-func UpdatePassword(propietaryUser, website, username, password string) error {
+func UpdatePassword(propietaryUser, website, username, password, signature string) error {
 	passwords, err := GetPasswords(propietaryUser, website)
 	if err != nil {
 		return err
@@ -304,7 +307,10 @@ func UpdatePassword(propietaryUser, website, username, password string) error {
 	// Reverse website
 	website = stringutilities.ReverseSplitJoin(website)
 
-	passwords[username] = password
+	passwords[username] = Password{
+		Password:  password,
+		Signature: signature,
+	}
 	value, err := json.Marshal(passwords)
 	if err != nil {
 		return err
