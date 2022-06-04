@@ -44,7 +44,7 @@ func GetAllPasswords(proprietaryUser, totpToken string) (map[string]map[string]s
 	}
 
 	// Validate totp token
-	err = validateTOTP(user, totpToken)
+	err = validateTOTP(user.TOTPinfo, totpToken)
 	if err != nil {
 		return nil, err
 	}

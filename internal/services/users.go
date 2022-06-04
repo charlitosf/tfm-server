@@ -6,11 +6,18 @@ import (
 )
 
 // Remove user from the database using the dataaccess functions
-// Given username
+// Validates the totp token and logs out the user upon deletion
+// Given username, token, and totp token
 // Return an error
-func DeleteUser(username, token string) error {
+func DeleteUser(username, token, totpToken string) error {
 	// Check if user exists
-	_, err := dataaccess.GetUser(username)
+	user, err := dataaccess.GetUser(username)
+	if err != nil {
+		return err
+	}
+
+	// Check if totp token is valid
+	err = validateTOTP(user.TOTPinfo, totpToken)
 	if err != nil {
 		return err
 	}
@@ -25,12 +32,19 @@ func DeleteUser(username, token string) error {
 	return Logout(token)
 }
 
-// Update a user's password
-// Given username and new password
+// Update a user's password, checks if the totp token is valid
+// and logs out the user upon update
+// Given username, new password, token, and totp token
 // Return an error
 func UpdateUserPassword(username, newPassword, token string) error {
 	// Check if user exists
-	_, err := dataaccess.GetUser(username)
+	user, err := dataaccess.GetUser(username)
+	if err != nil {
+		return err
+	}
+
+	// Check if totp token is valid
+	err = validateTOTP(user.TOTPinfo, token)
 	if err != nil {
 		return err
 	}

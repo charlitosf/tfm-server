@@ -74,7 +74,7 @@ func Login(username, password, totpToken string) (*string, *dataaccess.User, err
 	}
 
 	// Validate the TOTP token
-	err = validateTOTP(user, totpToken)
+	err = validateTOTP(user.TOTPinfo, totpToken)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,9 +97,9 @@ func Logout(token string) error {
 
 // Validate TOTP
 // Given a user and a totp token, checks if it is valid
-func validateTOTP(user *dataaccess.User, totpToken string) error {
+func validateTOTP(totpInfo, totpToken string) error {
 	// Get the totp info
-	key, err := otp.NewKeyFromURL(user.TOTPinfo)
+	key, err := otp.NewKeyFromURL(totpInfo)
 	if err != nil {
 		return err
 	}
