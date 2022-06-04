@@ -29,7 +29,7 @@ func CreateFile(c *gin.Context) {
 	err := c.BindJSON(&createFile)
 	if err == nil {
 		// Call services CreateFile method
-		err = services.CreateFile(user, createFile.Name, createFile.Content)
+		err = services.CreateFile(user, createFile.Name, createFile.Content, createFile.Signature)
 		if err == nil {
 			c.JSON(201, httptypes.GenericResponse{})
 		} else {
@@ -47,11 +47,12 @@ func GetFile(c *gin.Context) {
 	// Get filename from the path
 	filename := c.Param("name")
 	// Call services GetFile method
-	data, err := services.GetFile(user, filename)
+	data, signature, err := services.GetFile(user, filename)
 	if err == nil {
 		c.JSON(200, httptypes.GetFileResponse{
-			Name:    filename,
-			Content: data,
+			Name:      filename,
+			Content:   data,
+			Signature: signature,
 		})
 	} else {
 		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
@@ -69,7 +70,7 @@ func UpdateFile(c *gin.Context) {
 	err := c.BindJSON(&updateFile)
 	if err == nil {
 		// Call services UpdateFile method
-		err = services.UpdateFile(user, filename, updateFile.Content)
+		err = services.UpdateFile(user, filename, updateFile.Content, updateFile.Signature)
 		if err == nil {
 			c.JSON(200, httptypes.GenericResponse{})
 		} else {
@@ -86,10 +87,17 @@ func DeleteFile(c *gin.Context) {
 	user := c.MustGet("username").(string)
 	// Get filename from the path
 	filename := c.Param("name")
-	// Call services DeleteFile method
-	err := services.DeleteFile(user, filename)
+	// Bind the body
+	var deleteFile httptypes.DeleteFileRequest
+	err := c.BindJSON(&deleteFile)
 	if err == nil {
-		c.JSON(200, httptypes.GenericResponse{})
+		// Call services DeleteFile method
+		err := services.DeleteFile(user, filename, deleteFile.Signature)
+		if err == nil {
+			c.JSON(200, httptypes.GenericResponse{})
+		} else {
+			c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
+		}
 	} else {
 		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	}

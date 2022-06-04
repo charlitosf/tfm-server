@@ -327,12 +327,21 @@ func UpdatePassword(propietaryUser, website, username, password, signature strin
 }
 
 // Create encoded file in the database
-// Given propietary user, filename and file data
+// Given propietary user, filename, file data, and its signature
 // Return error
-func CreateFile(propietaryUser, filename string, data string) error {
+func CreateFile(propietaryUser, filename, data, signature string) error {
+	file := File{
+		Contents:  data,
+		Signature: signature,
+	}
+	value, err := json.Marshal(file)
+	if err != nil {
+		return err
+	}
+
 	putReq, err := hrpc.NewPutStr(context.Background(), FILES_TABLE, propietaryUser,
 		map[string]map[string][]byte{FILES_DATA_COLFAM: {
-			filename: []byte(data),
+			filename: value,
 		}})
 	if err != nil {
 		return err
@@ -343,20 +352,25 @@ func CreateFile(propietaryUser, filename string, data string) error {
 
 // Get a file from the database
 // Given propietary user and filename
-// Return encoded file data
-func GetFile(propietaryUser, filename string) (string, error) {
+// Return encoded file data and its signature
+func GetFile(propietaryUser, filename string) (*File, error) {
 	getReq, err := hrpc.NewGetStr(context.Background(), FILES_TABLE, propietaryUser, hrpc.Families(map[string][]string{FILES_DATA_COLFAM: {filename}}))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	result, err := HBaseClient.Get(getReq)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if result.Cells == nil || len(result.Cells) != 1 {
-		return "", errors.New("file not found")
+		return nil, errors.New("file not found")
 	}
-	return string(result.Cells[0].Value), nil
+	var file File
+	err = json.Unmarshal(result.Cells[0].Value, &file)
+	if err != nil {
+		return nil, err
+	}
+	return &file, nil
 }
 
 // Delete a file from the database
@@ -372,12 +386,20 @@ func DeleteFile(propietaryUser, filename string) error {
 }
 
 // Update a file in the database
-// Given propietary user, filename and file data
+// Given propietary user, filename, file data, and its signature
 // Return error
-func UpdateFile(propietaryUser, filename string, data string) error {
+func UpdateFile(propietaryUser, filename, data, signature string) error {
+	file := File{
+		Contents:  data,
+		Signature: signature,
+	}
+	value, err := json.Marshal(file)
+	if err != nil {
+		return err
+	}
 	putReq, err := hrpc.NewPutStr(context.Background(), FILES_TABLE, propietaryUser,
 		map[string]map[string][]byte{FILES_DATA_COLFAM: {
-			filename: []byte(data),
+			filename: value,
 		}})
 	if err != nil {
 		return err

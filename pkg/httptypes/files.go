@@ -9,8 +9,9 @@ type CreateFileRequest struct {
 
 // Get file response type struct
 type GetFileResponse struct {
-	Name    string `json:"name"`
-	Content string `json:"content"`
+	Name      string `json:"name"`
+	Content   string `json:"content"`
+	Signature string `json:"signature"`
 }
 
 // Update file request type struct

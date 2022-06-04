@@ -15,3 +15,9 @@ type Password struct {
 	Password  string `json:"password"`
 	Signature string `json:"signature"`
 }
+
+// File type
+type File struct {
+	Contents  string `json:"contents"`
+	Signature string `json:"signature"`
+}

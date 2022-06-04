@@ -112,3 +112,33 @@ func validateTOTP(totpInfo, totpToken string) error {
 
 	return nil
 }
+
+// Validate signature
+// Given a username, a string of data, and a signature, checks if the signature is valid
+func validateSignature(username, data, signature string) error {
+	// Get user
+	user, err := dataaccess.GetUser(username)
+	if err != nil {
+		return err
+	}
+
+	// Decode public key
+	pubKey, err := crypt.DecodePubKey(user.PubKey)
+	if err != nil {
+		return err
+	}
+
+	// Decode signature
+	signatureBytes, err := crypt.Decode64(signature)
+	if err != nil {
+		return err
+	}
+
+	// Verify signature
+	err = crypt.VerifyRSASignature(data, signatureBytes, pubKey)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
