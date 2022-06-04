@@ -12,9 +12,10 @@ func Login(c *gin.Context) {
 	// Get the user credentials
 	var req httptypes.LoginRequest
 	err := c.BindJSON(&req)
+	totpToken := c.MustGet("xtotp").(string)
 	if err == nil { // Correct request
 		// Get the token and the user
-		token, user, err := services.Login(req.Username, req.Password)
+		token, user, err := services.Login(req.Username, req.Password, totpToken)
 		if err != nil {
 			c.JSON(400, httptypes.LoginResponse{Error: &httptypes.Error{Message: err.Error()}})
 		} else {

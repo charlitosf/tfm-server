@@ -16,8 +16,8 @@ func main() {
 	// Authorization group
 	auth := r.Group("/auth")
 	{
-		// Login
-		auth.POST("/login", controllers.Login)
+		// Login (must contain the X-TOTP header)
+		auth.POST("/login", middleware.XTOTP(), controllers.Login)
 		// Logout (must be authorized)
 		auth.POST("/logout", middleware.Authorized(), controllers.Logout)
 		// Signup
@@ -33,17 +33,17 @@ func main() {
 		// Users group
 		users := authorized.Group("/users", middleware.TokenUsernameMustMatchPathUsername())
 		{
-			// Update user ('s password)
-			users.PUT("/:username", controllers.UpdateUser)
-			// Delete user
-			users.DELETE("/:username", controllers.DeleteUser)
+			// Update user ('s password) (must contain the X-TOTP header)
+			users.PUT("/:username", middleware.XTOTP(), controllers.UpdateUser)
+			// Delete user ('s account)	(must contain the X-TOTP header)
+			users.DELETE("/:username", middleware.XTOTP(), controllers.DeleteUser)
 		}
 
 		// Passwords group
 		passwords := authorized.Group("/passwords")
 		{
-			// Get all passwords
-			passwords.GET("/", controllers.GetPasswords)
+			// Get all passwords (must contain the X-TOTP header)
+			passwords.GET("/", middleware.XTOTP(), controllers.GetPasswords)
 			// Get all passwords from a website
 			passwords.GET("/:website", controllers.GetPasswordsByWebsite)
 			// Create a password on a website

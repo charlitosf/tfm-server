@@ -53,8 +53,8 @@ func Signup(username, password, name, email, pubKey, privKey string) (string, er
 }
 
 // Login
-// Given a username and password, returns a token and the user metadata
-func Login(username, password string) (*string, *dataaccess.User, error) {
+// Given a username, password, and TOTP token, returns a token and the user metadata
+func Login(username, password, totpToken string) (*string, *dataaccess.User, error) {
 	// Get the password and the salt
 	pass, salt, err := dataaccess.GetUserPasswordAndSalt(username)
 	if err != nil {
@@ -71,6 +71,18 @@ func Login(username, password string) (*string, *dataaccess.User, error) {
 	user, err := dataaccess.GetUser(username)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// Get the totp info
+	key, err := otp.NewKeyFromURL(user.TOTPinfo)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Check if the totp token is valid
+	valid := totp.Validate(totpToken, key.Secret())
+	if !valid {
+		return nil, nil, errors.New("wrong credentials")
 	}
 
 	// Generate token

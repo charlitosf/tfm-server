@@ -71,3 +71,19 @@ func CORS() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// X-TOTP header must be present
+func XTOTP() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get the X-TOTP header from the header
+		xtotp := c.Request.Header.Get("X-TOTP")
+
+		// If the X-TOTP header is missing, abort with error
+		if xtotp == "" {
+			c.AbortWithError(401, errors.New("missing X-TOTP header"))
+		}
+
+		// Add the X-TOTP header to the context
+		c.Set("xtotp", xtotp)
+	}
+}
