@@ -73,16 +73,10 @@ func Login(username, password, totpToken string) (*string, *dataaccess.User, err
 		return nil, nil, err
 	}
 
-	// Get the totp info
-	key, err := otp.NewKeyFromURL(user.TOTPinfo)
+	// Validate the TOTP token
+	err = validateTOTP(user, totpToken)
 	if err != nil {
 		return nil, nil, err
-	}
-
-	// Check if the totp token is valid
-	valid := totp.Validate(totpToken, key.Secret())
-	if !valid {
-		return nil, nil, errors.New("wrong credentials")
 	}
 
 	// Generate token
@@ -99,4 +93,22 @@ func Login(username, password, totpToken string) (*string, *dataaccess.User, err
 // Given a token, invalidates it
 func Logout(token string) error {
 	return jwt.RevokeToken(token)
+}
+
+// Validate TOTP
+// Given a user and a totp token, checks if it is valid
+func validateTOTP(user *dataaccess.User, totpToken string) error {
+	// Get the totp info
+	key, err := otp.NewKeyFromURL(user.TOTPinfo)
+	if err != nil {
+		return err
+	}
+
+	// Check if the totp token is valid
+	valid := totp.Validate(totpToken, key.Secret())
+	if !valid {
+		return errors.New("wrong credentials")
+	}
+
+	return nil
 }

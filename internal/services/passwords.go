@@ -34,9 +34,21 @@ func GetPasswords(proprietaryUser, website string) (map[string]string, error) {
 }
 
 // Get all the passwords
-// Given a proprietary user
+// Given a proprietary user and a totp token
 // Return a map of websites and passwords
-func GetAllPasswords(proprietaryUser string) (map[string]map[string]string, error) {
+func GetAllPasswords(proprietaryUser, totpToken string) (map[string]map[string]string, error) {
+	// Get the user
+	user, err := dataaccess.GetUser(proprietaryUser)
+	if err != nil {
+		return nil, err
+	}
+
+	// Validate totp token
+	err = validateTOTP(user, totpToken)
+	if err != nil {
+		return nil, err
+	}
+
 	return dataaccess.GetAllPasswords(proprietaryUser)
 }
 

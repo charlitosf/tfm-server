@@ -11,8 +11,10 @@ import (
 func GetPasswords(c *gin.Context) {
 	// Get user
 	user := c.MustGet("username").(string)
+	// Get totp token
+	totpToken := c.MustGet("xtotp").(string)
 	// Get passwords
-	passwords, err := services.GetAllPasswords(user)
+	passwords, err := services.GetAllPasswords(user, totpToken)
 	if err != nil {
 		c.JSON(400, httptypes.GenericResponse{Error: &httptypes.Error{Message: err.Error()}})
 	} else {
