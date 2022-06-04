@@ -357,7 +357,7 @@ func GetFile(propietaryUser, filename string) (string, error) {
 // Given propietary user and filename
 // Return error
 func DeleteFile(propietaryUser, filename string) error {
-	delReq, err := hrpc.NewDelStr(context.Background(), FILES_TABLE, propietaryUser, nil)
+	delReq, err := hrpc.NewDelStr(context.Background(), FILES_TABLE, propietaryUser, map[string]map[string][]byte{FILES_DATA_COLFAM: {filename: {}}})
 	if err != nil {
 		return err
 	}
