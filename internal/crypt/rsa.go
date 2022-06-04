@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/json"
 
 	"golang.org/x/crypto/sha3"
@@ -76,23 +77,40 @@ func DecodePrivKey(ePrivK string, dataK []byte) (privK *rsa.PrivateKey, err erro
 
 // DecodePubKey applies to the given encoded public key the inverse transformations to those done by EncodeKeys.
 // See its documentation.
+// func DecodePubKey(ePubK string) (pubK *rsa.PublicKey, err error) {
+// 	decPubK, err := Decode64(ePubK)
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	pubJSON, err := Decompress(decPubK)
+// 	if err != nil {
+// 		return
+// 	}
+
+// 	var tempPubK rsa.PublicKey
+// 	err = json.Unmarshal(pubJSON, &tempPubK)
+// 	if err != nil {
+// 		return
+// 	}
+// 	pubK = &tempPubK
+// 	return
+// }
+
+// DecodePubKey decodes a public key from a string.
+// First applies base 64 decoding and then converts the
+// spki result to a public key.
 func DecodePubKey(ePubK string) (pubK *rsa.PublicKey, err error) {
 	decPubK, err := Decode64(ePubK)
 	if err != nil {
 		return
 	}
-
-	pubJSON, err := Decompress(decPubK)
+	// Convert the base64-decoded spki to a public key
+	pubKAny, err := x509.ParsePKIXPublicKey(decPubK)
 	if err != nil {
 		return
 	}
-
-	var tempPubK rsa.PublicKey
-	err = json.Unmarshal(pubJSON, &tempPubK)
-	if err != nil {
-		return
-	}
-	pubK = &tempPubK
+	pubK = pubKAny.(*rsa.PublicKey)
 	return
 }
 
@@ -130,13 +148,13 @@ func DecryptWithRSAPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) ([]byte, 
 // SignRSA returns a signature made by combining the message and the signers private key
 // With the VerifySignature function, the signature can be checked.
 func SignRSA(msg string, priv *rsa.PrivateKey) (signature []byte, err error) {
-	// hs := Hash256(msg)
-	signature, err = rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, []byte(msg))
+	hs := HashSHA256(msg)
+	signature, err = rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, hs)
 	return
 }
 
 // VerifyRSASignature checks if a message is signed by a given Public Key
 func VerifyRSASignature(msg string, sig []byte, pk *rsa.PublicKey) error {
-	// hs := Hash256(msg)
-	return rsa.VerifyPKCS1v15(pk, crypto.SHA256, []byte(msg), sig)
+	hs := HashSHA256(msg)
+	return rsa.VerifyPKCS1v15(pk, crypto.SHA256, hs, sig)
 }

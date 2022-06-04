@@ -6,6 +6,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"io"
 
@@ -93,6 +94,13 @@ func Decode64(s string) ([]byte, error) {
 // Hash256 creates a SHA-3 256-bit hash from the given message.
 func Hash256(msg string) []byte {
 	h := sha3.New256()
+	h.Write([]byte(msg))
+	return h.Sum(nil)
+}
+
+// HashSHA256 creates a SHA-2 256-bit hash from the given message.
+func HashSHA256(msg string) []byte {
+	h := sha256.New()
 	h.Write([]byte(msg))
 	return h.Sum(nil)
 }
