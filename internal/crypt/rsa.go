@@ -130,13 +130,13 @@ func DecryptWithRSAPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) ([]byte, 
 // SignRSA returns a signature made by combining the message and the signers private key
 // With the VerifySignature function, the signature can be checked.
 func SignRSA(msg string, priv *rsa.PrivateKey) (signature []byte, err error) {
-	hs := Hash256(msg)
-	signature, err = rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, hs)
+	// hs := Hash256(msg)
+	signature, err = rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, []byte(msg))
 	return
 }
 
 // VerifyRSASignature checks if a message is signed by a given Public Key
 func VerifyRSASignature(msg string, sig []byte, pk *rsa.PublicKey) error {
-	hs := Hash256(msg)
-	return rsa.VerifyPKCS1v15(pk, crypto.SHA256, hs, sig)
+	// hs := Hash256(msg)
+	return rsa.VerifyPKCS1v15(pk, crypto.SHA256, []byte(msg), sig)
 }
