@@ -92,3 +92,10 @@ func UpdatePassword(proprietaryUser, website, username, newPassword, signature s
 
 	return dataaccess.UpdatePassword(proprietaryUser, website, username, newPassword, signature)
 }
+
+// Delete all passwords
+// Given a proprietary user
+// Return error
+func DeleteAllPasswords(proprietaryUser string) error {
+	return dataaccess.DeleteAllPasswords(proprietaryUser)
+}

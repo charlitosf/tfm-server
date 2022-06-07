@@ -3,3 +3,10 @@
 
 .vscode
 __debug_bin
+
+*.crt
+*.csr
+*.ext
+*.pem
+*.key
+*.srl

@@ -83,8 +83,8 @@ func main() {
 		}
 	}
 
-	// Start the server
-	r.Run()
+	// Start the server with TLS
+	r.RunTLS(":8080", "192.168.22.132.crt", "192.168.22.132.key")
 }
 
 // Function that reads the server password from the terminal

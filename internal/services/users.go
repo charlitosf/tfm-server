@@ -28,6 +28,18 @@ func DeleteUser(username, token, totpToken string) error {
 		return err
 	}
 
+	// Delete all user's passwords
+	err = dataaccess.DeleteAllPasswords(username)
+	if err != nil {
+		return err
+	}
+
+	// Delete all user's files
+	err = dataaccess.DeleteAllFiles(username)
+	if err != nil {
+		return err
+	}
+
 	// Logout
 	return Logout(token)
 }

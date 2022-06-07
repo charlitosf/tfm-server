@@ -76,3 +76,10 @@ func UpdateFile(propietaryUser, filename, data, signature string) error {
 func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
 	return dataaccess.GetAllFilenames(propietaryUser)
 }
+
+// Delete all files from the database
+// Given propietary user
+// Return error
+func DeleteAllFiles(propietaryUser string) error {
+	return dataaccess.DeleteAllFiles(propietaryUser)
+}

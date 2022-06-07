@@ -326,6 +326,18 @@ func UpdatePassword(propietaryUser, website, username, password, signature strin
 	return err
 }
 
+// Delete all passwords from a user from the database
+// Given propietary user
+// Return error
+func DeleteAllPasswords(propietaryUser string) error {
+	delReq, err := hrpc.NewDelStr(context.Background(), PASSWORDS_TABLE, propietaryUser, nil)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Delete(delReq)
+	return err
+}
+
 // Create encoded file in the database
 // Given propietary user, filename, file data, and its signature
 // Return error
@@ -430,4 +442,16 @@ func GetAllFilenames(propietaryUser string) ([]map[string]string, error) {
 		}
 	}
 	return filenames, nil
+}
+
+// Delete all files from the database
+// Given propietary user
+// Return error
+func DeleteAllFiles(propietaryUser string) error {
+	delReq, err := hrpc.NewDelStr(context.Background(), FILES_TABLE, propietaryUser, nil)
+	if err != nil {
+		return err
+	}
+	_, err = HBaseClient.Delete(delReq)
+	return err
 }
