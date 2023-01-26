@@ -13,6 +13,7 @@ Required steps to put the project up and running.
 - make
 - git
 - go 1.18^
+- Java 8
 
 ### Apache HBase
 
