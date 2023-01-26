@@ -84,8 +84,7 @@ func main() {
 		}
 	}
 
-	// Start the server with TLS
-	// r.RunTLS(":8080", "192.168.22.132.crt", "192.168.22.132.key")
+	// Start the server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
