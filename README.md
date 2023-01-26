@@ -48,6 +48,7 @@ Once the database is running and has the necessary tables created:
 ```bash
 # Clone the server repository
 git clone https://github.com/charlitosf/tfm-server
+cd tfm-server
 
 # Set up the .env file
 cp .env.copy .env
