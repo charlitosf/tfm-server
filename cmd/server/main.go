@@ -6,6 +6,7 @@ import (
 	"charlitosf/tfm-server/internal/middleware"
 	"charlitosf/tfm-server/internal/services"
 	"fmt"
+	"os"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
@@ -84,7 +85,12 @@ func main() {
 	}
 
 	// Start the server with TLS
-	r.RunTLS(":8080", "192.168.22.132.crt", "192.168.22.132.key")
+	// r.RunTLS(":8080", "192.168.22.132.crt", "192.168.22.132.key")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	r.Run(":" + port)
 }
 
 // Function that reads the server password from the terminal

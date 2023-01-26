@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/tsuna/gohbase"
 	"github.com/tsuna/gohbase/filter"
 	"github.com/tsuna/gohbase/hrpc"
@@ -35,6 +36,10 @@ var host string
 
 // initialize the HBase client
 func init() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 	host = os.Getenv("HBASE_HOST")
 	if host == "" {
 		host = "localhost"
