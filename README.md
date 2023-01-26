@@ -6,11 +6,63 @@ The project follows the [MVC](https://en.wikipedia.org/wiki/Model%E2%80%93view%E
 
 ## Setup
 
+Required steps to put the project up and running.
+
+### Prerequisites
+
+- make
+- git
+- go 1.18^
+
+### Apache HBase
+
+This project uses the distributed database Apache HBase. Therefore, the first step in the project setup is to download HBase from its [website](https://hbase.apache.org/downloads.html) (the "bin" option).
+
+Then, follow the [documentation](https://hbase.apache.org/book.html#quickstart) to set up the database at least as a standalone server (more complex setups also work). Although, to sum up, the steps are:
+
 ```bash
-make
+# Decompress the tar file
+tar xzvf downloaded-file.tar.gz
+cd hbase-folder
 ```
 
-Make will automatically compile the whole server and create the server.exe file (compatible with Linux).
+Modify the `conf/hbase-env.sh` file so that it includes an export of the `JAVA_HOME` variable pointing to your Java 8 installation.
+
+```bash
+# Start the database
+./bin/start-hbase.sh
+```
+
+```bash
+# Create the necessary tables
+./bin/hbase shell
+> create 'users', 'data' # Users table, data column family
+> create 'passwords', 'data' # Passwords table, data column family
+> create 'files', 'data' # Files table, data column family
+```
+
+### Server setup
+
+Once the database is running and has the necessary tables created:
+
+```bash
+# Clone the server repository
+git clone https://github.com/charlitosf/tfm-server
+
+# Set up the .env file
+cp .env.copy .env
+```
+
+Then, modify the .env file according to your needs and run the project with make.
+
+```bash
+make
+
+# Or or only creating the server.exe file and not executing it
+make build
+```
+
+Make will automatically compile the whole server, create the server.exe file (compatible with Linux), and run it.
 
 ## Project Organization
 
