@@ -60,7 +60,7 @@ Then, modify the .env file according to your needs and run the project with make
 ```bash
 make
 
-# Or or only creating the server.exe file and not executing it
+# Or only creating the server.exe file and not executing it
 make build
 ```
 
