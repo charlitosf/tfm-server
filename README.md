@@ -52,7 +52,7 @@ git clone https://github.com/charlitosf/tfm-server
 cd tfm-server
 
 # Set up the .env file
-cp .env.copy .env
+cp .env.example .env
 ```
 
 Then, modify the .env file according to your needs and run the project with make.
