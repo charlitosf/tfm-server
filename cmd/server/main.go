@@ -89,7 +89,14 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(":" + port)
+
+	cert_file := os.Getenv("TLS_CERT_FILE")
+	key_file := os.Getenv("TLS_KEY_FILE")
+	if cert_file != "" && key_file != "" {
+		r.RunTLS(":"+port, cert_file, key_file)
+	} else {
+		r.Run(":" + port)
+	}
 }
 
 // Function that reads the server password from the terminal

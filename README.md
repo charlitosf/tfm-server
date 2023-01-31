@@ -66,6 +66,8 @@ make build
 
 Make will automatically compile the whole server, create the server.exe file (compatible with Linux), and run it.
 
+In order to use TLS, both TLS_KEY_FILE and TLS_CERT_FILE must be provided through the .env file.
+
 ## Project Organization
 
 - [api](https://github.com/charlitosf/tfm-server/tree/master/api): API definition using OpenApi 3.0.2
